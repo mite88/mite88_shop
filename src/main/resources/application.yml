@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: blog
+
+  profiles:
+    active: mysql,redis,dev
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope: profile, email
+            redirect-uri: "{baseUrl}/login/oauth2/code/google"
+
+custom:
+  jwt:
+    secrets:
+      app-key: ${JWT_APP_KEY}
+    expiration: ${JWT_EXPIRATION:900000}
+    refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
+
+  job:
+    queue:
+      key: ${AI_JOB_QUEUE_KEY:ai:job:queue}
+      prefix: ${AI_JOB_QUEUE_PREFIX:ai:job:}
+      ttl: ${AI_JOB_QUEUE_TTL:3600}
+    worker:
+      delay: ${AI_JOB_WORKER_DELAY:1000}
