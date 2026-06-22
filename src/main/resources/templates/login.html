@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+  <title>로그인</title>
+</head>
+<body>
+<div layout:fragment="content">
+  <div class="flex justify-center items-center min-h-[60vh]">
+    <div class="card bg-base-100 shadow-xl w-full max-w-md">
+      <div class="card-body">
+        <h2 class="card-title text-2xl mb-4">로그인</h2>
+
+        <form id="login-form" onsubmit="handleLogin(event)">
+          <label class="form-control w-full mb-3">
+            <div class="label"><span class="label-text">아이디</span></div>
+            <input id="username" type="text" placeholder="아이디 입력"
+                   class="input input-bordered w-full" required />
+          </label>
+
+          <label class="form-control w-full mb-5">
+            <div class="label"><span class="label-text">비밀번호</span></div>
+            <input id="password" type="password" placeholder="비밀번호 입력"
+                   class="input input-bordered w-full" required />
+          </label>
+
+          <button type="submit" id="login-btn" class="btn btn-primary w-full">
+            로그인
+          </button>
+        </form>
+
+        <div class="divider">또는</div>
+        <a th:href="@{/signup}" class="btn btn-outline w-full">회원가입</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<th:block layout:fragment="scripts">
+  <script>
+    if (Auth.isLoggedIn()) window.location.href = '/';
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const btn = document.getElementById('login-btn');
+      btn.classList.add('loading');
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/v1/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: document.getElementById('username').value,
+            password: document.getElementById('password').value
+          })
+        });
+
+        if (!res.ok) {
+          const data = await res.json();
+          showToast(data.message || '로그인에 실패했습니다.', 'error');
+          return;
+        }
+
+        const { accessToken, refreshToken } = await res.json();
+        Auth.setTokens(accessToken, refreshToken);
+        showToast('로그인 성공!', 'success');
+        setTimeout(() => window.location.href = '/', 500);
+
+      } catch {
+        showToast('서버 오류가 발생했습니다.', 'error');
+      } finally {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+      }
+    }
+  </script>
+</th:block>
+</body>
+</html>

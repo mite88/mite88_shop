@@ -1,0 +1,49 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    database-platform: org.hibernate.dialect.H2Dialect
+
+  flyway:
+    enabled: false
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      repositories:
+        enabled: false
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: "dummy-id"
+            client-secret: "dummy-secret"
+            scope: "profile, email"
+            redirect-uri: "{baseUrl}/login/oauth2/code/google"
+
+custom:
+  jwt:
+    secrets:
+      app-key: "MDE5ZTgxZmQtZmE0OC03MzU4LTlkYzEtOWI4NTgxYjljZjI1LTAxOWU4MWZkLWZhNDgtN2RkMi1iOTViLWMxY2I5ZmZiYWMxNw=="
+    expiration: 6000000
+    refresh-expiration: 604800000
+  job:
+    queue:
+      key: "ai:job:queue"
+      prefix: "ai:job:"
+      ttl: 3600
+    worker:
+      delay: 1000

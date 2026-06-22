@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+  <title>회원가입</title>
+</head>
+<body>
+<div layout:fragment="content">
+  <div class="flex justify-center items-center min-h-[60vh]">
+    <div class="card bg-base-100 shadow-xl w-full max-w-md">
+      <div class="card-body">
+        <h2 class="card-title text-2xl mb-4">회원가입</h2>
+
+        <form id="signup-form" onsubmit="handleSignup(event)">
+          <label class="form-control w-full mb-3">
+            <div class="label">
+              <span class="label-text">아이디</span>
+              <span class="label-text-alt text-base-content/50">4~20자</span>
+            </div>
+            <input id="username" type="text" placeholder="아이디"
+                   class="input input-bordered w-full"
+                   minlength="4" maxlength="20" required />
+          </label>
+
+          <label class="form-control w-full mb-3">
+            <div class="label">
+              <span class="label-text">비밀번호</span>
+              <span class="label-text-alt text-base-content/50">8자 이상</span>
+            </div>
+            <input id="password" type="password" placeholder="비밀번호"
+                   class="input input-bordered w-full"
+                   minlength="8" required />
+          </label>
+
+          <label class="form-control w-full mb-5">
+            <div class="label"><span class="label-text">이메일</span></div>
+            <input id="email" type="email" placeholder="이메일"
+                   class="input input-bordered w-full" required />
+          </label>
+
+          <button type="submit" id="signup-btn" class="btn btn-primary w-full">
+            가입하기
+          </button>
+        </form>
+
+        <div class="divider">이미 계정이 있으신가요?</div>
+        <a th:href="@{/login}" class="btn btn-outline w-full">로그인</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<th:block layout:fragment="scripts">
+  <script>
+    async function handleSignup(e) {
+      e.preventDefault();
+      const btn = document.getElementById('signup-btn');
+      btn.classList.add('loading');
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/v1/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username: document.getElementById('username').value,
+            password: document.getElementById('password').value,
+            email:    document.getElementById('email').value
+          })
+        });
+
+        if (!res.ok) {
+          const data = await res.json();
+          showToast(data.message || '회원가입에 실패했습니다.', 'error');
+          return;
+        }
+
+        showToast('회원가입 성공! 로그인 페이지로 이동합니다.', 'success');
+        setTimeout(() => window.location.href = '/login', 1000);
+
+      } catch {
+        showToast('서버 오류가 발생했습니다.', 'error');
+      } finally {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+      }
+    }
+  </script>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+  <title>상품 상세</title>
+</head>
+<body>
+<div layout:fragment="content">
+  <!-- 로딩 스켈레톤 -->
+  <div id="product-skeleton" class="flex gap-8">
+    <div class="skeleton w-80 h-80 rounded-xl"></div>
+    <div class="flex-1 space-y-4">
+      <div class="skeleton h-8 w-64"></div>
+      <div class="skeleton h-4 w-full"></div>
+      <div class="skeleton h-4 w-3/4"></div>
+      <div class="skeleton h-6 w-32"></div>
+    </div>
+  </div>
+
+  <!-- 상품 상세 -->
+  <div id="product-detail" class="hidden">
+    <div class="flex flex-col md:flex-row gap-8">
+      <div class="bg-base-300 rounded-xl w-full md:w-80 h-80 flex items-center justify-center shrink-0">
+        <span class="text-6xl">📦</span>
+      </div>
+
+      <div class="flex-1 space-y-4">
+        <div>
+          <span id="product-category" class="badge badge-secondary mb-2"></span>
+          <h1 id="product-name" class="text-3xl font-bold"></h1>
+        </div>
+        <p id="product-description" class="text-base-content/70"></p>
+        <div class="text-2xl font-bold text-primary" id="product-price"></div>
+        <div class="text-sm text-base-content/50">
+          재고: <span id="product-stock"></span>개
+        </div>
+
+        <!-- 수량 선택 -->
+        <div class="flex items-center gap-3">
+          <button class="btn btn-outline btn-sm" onclick="changeQty(-1)">−</button>
+          <span id="qty-display" class="text-lg font-semibold w-8 text-center">1</span>
+          <button class="btn btn-outline btn-sm" onclick="changeQty(1)">+</button>
+        </div>
+
+        <div class="flex gap-3">
+          <button onclick="addToCart()" class="btn btn-primary btn-lg flex-1">
+            🛒 장바구니 담기
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<th:block layout:fragment="scripts">
+  <script th:inline="javascript">
+    const PRODUCT_ID = /*[[${productId}]]*/ null;
+  </script>
+  <script th:src="@{/js/product.js}"></script>
+  <script th:src="@{/js/cart.js}"></script>
+  <script>
+    loadProductDetail(PRODUCT_ID);
+  </script>
+</th:block>
+</body>
+</html>

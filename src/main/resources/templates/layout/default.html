@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title layout:title-pattern="$CONTENT_TITLE - Mite88 Shop">Mite88 Shop</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+  <th:block layout:fragment="head"></th:block>
+</head>
+<body class="min-h-screen bg-base-200 flex flex-col">
+
+  <!-- NAVBAR -->
+  <nav class="navbar bg-base-100 shadow-sm sticky top-0 z-50">
+    <div class="navbar-start">
+      <a th:href="@{/}" class="btn btn-ghost text-xl font-bold">
+        🛍 Mite88 Shop
+      </a>
+    </div>
+
+    <div class="navbar-center hidden lg:flex">
+      <ul class="menu menu-horizontal px-1 gap-1">
+        <li><a th:href="@{/}" class="btn btn-ghost btn-sm">홈</a></li>
+      </ul>
+    </div>
+
+    <div class="navbar-end gap-2">
+      <!-- 비로그인 -->
+      <a data-auth="guest" th:href="@{/login}" class="btn btn-ghost btn-sm">로그인</a>
+      <a data-auth="guest" th:href="@{/signup}" class="btn btn-primary btn-sm">회원가입</a>
+
+      <!-- 로그인 -->
+      <a data-auth="user" th:href="@{/cart}" class="btn btn-ghost btn-sm hidden">🛒 장바구니</a>
+      <a data-auth="user" th:href="@{/orders}" class="btn btn-ghost btn-sm hidden">주문내역</a>
+      <button data-auth="user" onclick="Auth.logout()" class="btn btn-error btn-sm hidden">로그아웃</button>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="flex-1 container mx-auto px-4 py-8 max-w-6xl">
+    <th:block layout:fragment="content"></th:block>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer footer-center bg-base-300 text-base-content p-6 mt-auto">
+    <p class="text-sm">© 2026 Mite88 Shop. All rights reserved.</p>
+  </footer>
+
+  <!-- TOAST 컨테이너 -->
+  <div id="toast-container" class="toast toast-top toast-end z-[100]"></div>
+
+  <!-- 공통 JS -->
+  <script th:src="@{/js/auth.js}"></script>
+
+  <!-- Toast 유틸 -->
+  <script>
+    function showToast(message, type = 'info') {
+      const alertClass = {
+        success: 'alert-success',
+        error:   'alert-error',
+        info:    'alert-info',
+        warning: 'alert-warning'
+      }[type] || 'alert-info';
+
+      const toast = document.createElement('div');
+      toast.className = `alert ${alertClass} shadow-lg max-w-xs`;
+      toast.innerHTML = `<span>${message}</span>`;
+
+      const container = document.getElementById('toast-container');
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+  </script>
+
+  <!-- 페이지별 스크립트 -->
+  <th:block layout:fragment="scripts"></th:block>
+
+</body>
+</html>
