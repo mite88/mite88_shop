@@ -1,7 +1,7 @@
 package io.mite88.mite88shop.posts.service;
 
-import io.mite88.mite88shop.mite88shop.global.code.ResponseCode;
-import io.mite88.mite88shop.mite88shop.global.exception.BusinessException;
+import io.mite88.mite88shop.global.code.ResponseCode;
+import io.mite88.mite88shop.global.exception.BusinessException;
 import io.mite88.mite88shop.members.entity.Member;
 import io.mite88.mite88shop.members.dto.Role; // MemberRole 대신 Role import
 import io.mite88.mite88shop.members.service.MemberService;
@@ -22,14 +22,12 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.NoSuchElementException; // 더 이상 사용하지 않으므로 제거 가능
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;

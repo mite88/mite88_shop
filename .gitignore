@@ -19,10 +19,7 @@ bin/
 
 ### IntelliJ IDEA ###
 .idea
-<<<<<<< HEAD
-=======
 **/.idea
->>>>>>> origin/main
 *.iws
 *.iml
 *.ipr

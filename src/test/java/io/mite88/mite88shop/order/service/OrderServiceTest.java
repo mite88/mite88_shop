@@ -1,7 +1,7 @@
 package io.mite88.mite88shop.order.service;
 
-import io.mite88.mite88shop.mite88shop.global.code.ResponseCode;
-import io.mite88.mite88shop.mite88shop.global.exception.BusinessException;
+import io.mite88.mite88shop.global.code.ResponseCode;
+import io.mite88.mite88shop.global.exception.BusinessException;
 import io.mite88.mite88shop.cart.entity.Cart;
 import io.mite88.mite88shop.cart.entity.CartItem;
 import io.mite88.mite88shop.cart.repository.CartJpaRepository;

@@ -1,7 +1,7 @@
 package io.mite88.mite88shop.members.service;
 
-import io.mite88.mite88shop.mite88shop.global.code.ResponseCode;
-import io.mite88.mite88shop.mite88shop.global.exception.BusinessException;
+import io.mite88.mite88shop.global.code.ResponseCode;
+import io.mite88.mite88shop.global.exception.BusinessException;
 import io.mite88.mite88shop.members.dto.LoginRequest;
 import io.mite88.mite88shop.members.dto.MemberDetails;
 import io.mite88.mite88shop.members.dto.TokenResponse;
