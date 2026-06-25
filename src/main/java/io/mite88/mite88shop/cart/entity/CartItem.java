@@ -23,6 +23,9 @@ public class CartItem {
 
     private int quantity;
 
+    /**
+     * 장바구니 항목 생성
+     */
     public static CartItem of(Cart cart, Product product, int quantity) {
         CartItem item = new CartItem();
         item.cart = cart;
@@ -31,6 +34,9 @@ public class CartItem {
         return item;
     }
 
+    /**
+     * 수량 변경
+     */
     public void updateQuantity(int quantity) {
         this.quantity = quantity;
     }

@@ -27,7 +27,10 @@ public class RedisConfig {
     @Value("${REDIS_PASSWORD:}")
     private String redisPassword;
 
-    // 1. AiJob 객체 저장용 템플릿
+    /**
+     * AiJob 객체 저장용 RedisTemplate - Jackson JSON 직렬화
+     * 잘못된 템플릿 사용 시 역직렬화 오류 발생하므로 JobService에서 반드시 이 빈을 사용해야 함
+     */
     @Bean
     public RedisTemplate<String, AiJob> redisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, AiJob> template = new RedisTemplate<>();
@@ -51,7 +54,10 @@ public class RedisConfig {
         return WebClient.builder();
     }
 
-    // 2. 큐(Job ID) 관리용 템플릿 (String 전용)
+    /**
+     * AI 작업 큐(jobId) 관리용 RedisTemplate - String 직렬화
+     * AiJob 템플릿과 혼용 금지 (타입 불일치로 직렬화 오류 발생)
+     */
     @Bean
     public RedisTemplate<String, String> queueRedisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, String> template = new RedisTemplate<>();
@@ -64,6 +70,9 @@ public class RedisConfig {
         return template;
     }
 
+    /**
+     * Redis 연결 설정 - 비밀번호 없는 경우 인증 생략
+     */
     @Bean
     public LettuceConnectionFactory lettuceConnectionFactory() {
         RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(redisHost, redisPort);
@@ -73,7 +82,9 @@ public class RedisConfig {
         return new LettuceConnectionFactory(config);
     }
 
-    // 4. RefreshToken 등 단순 String 저장용 - Lettuce 기반
+    /**
+     * RefreshToken 등 단순 문자열 저장용 StringRedisTemplate
+     */
     @Bean
     public StringRedisTemplate stringRedisTemplate(LettuceConnectionFactory lettuceConnectionFactory) {
         StringRedisTemplate template = new StringRedisTemplate();

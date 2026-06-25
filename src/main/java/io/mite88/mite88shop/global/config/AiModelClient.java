@@ -36,6 +36,9 @@ public class AiModelClient {
     @Value("${AI_MODEL_TIMEOUT:5s}")
     private Duration timeout;
 
+    /**
+     * 외부 AI 모델 API 동기 호출 - timeout 초과 시 예외 발생
+     */
     public Object callModel(String input) {
         return webClientBuilder
                 .baseUrl(aiModelUrl)
@@ -43,7 +46,7 @@ public class AiModelClient {
                 .post()
                 .uri(aiModelEndpoint)
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(input)            // 요청 바디 누락되어 있었음
+                .bodyValue(input)
                 .retrieve()
                 .bodyToMono(Object.class)
                 .timeout(timeout)

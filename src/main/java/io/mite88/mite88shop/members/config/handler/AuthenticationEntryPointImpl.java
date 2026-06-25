@@ -20,6 +20,9 @@ public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {
 
     private final ObjectMapper objectMapper;
 
+    /**
+     * 인증되지 않은 요청 진입 시 401 JSON 응답 반환 - 기본 리다이렉트 대신 API 응답 형식 유지
+     */
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         response.setStatus(ResponseCode.UNAUTHORIZED_ACCESS.getHttpStatus().value());

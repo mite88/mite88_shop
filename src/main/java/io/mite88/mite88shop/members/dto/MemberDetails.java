@@ -10,6 +10,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Spring Security 인증 정보 및 OAuth2User 역할 겸용 DTO
+ * TokenAuthenticationFilter와 OAuth2SuccessHandler에서 principal로 사용됨
+ */
 @Getter
 @RequiredArgsConstructor
 public class MemberDetails implements UserDetails {
@@ -19,6 +23,9 @@ public class MemberDetails implements UserDetails {
 
     private final Role role;
 
+    /**
+     * 권한 반환 - role을 GrantedAuthority로 변환
+     */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         String role = this.role.name().toUpperCase();

@@ -27,6 +27,9 @@ public class SecurityConfig {
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final AuthenticationEntryPointImpl authenticationEntryPoint; // Inject AuthenticationEntryPointImpl
 
+    /**
+     * 보안 필터 체인 설정 - JWT 인증, URL 접근 권한, OAuth2 조건부 등록
+     */
     @Bean
     public SecurityFilterChain filterChain(
             HttpSecurity http,
@@ -43,14 +46,17 @@ public class SecurityConfig {
                         .successHandler(successHandler)
                         .failureHandler(failureHandler)
                 )
+                //JWT 사용 시 세션 불필요하나, OAuth2 리다이렉트를 위해 IF_REQUIRED 유지
                 .sessionManagement(config -> config.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-                .exceptionHandling(ex -> ex.authenticationEntryPoint(authenticationEntryPoint)) // Use the injected AuthenticationEntryPointImpl
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(authenticationEntryPoint))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                         .requestMatchers("/", "/login", "/signup").permitAll()
+                        //인증 없이 사용 가능한 인증 API
                         .requestMatchers("/api/v1/auth/signup", "/api/v1/auth/login", "/api/v1/auth/refresh").permitAll()
                         .requestMatchers("/api/v1/auth/logout").authenticated()
+                        //게시글 조회는 공개, 작성/수정/삭제는 로그인 필요
                         .requestMatchers(HttpMethod.GET, "/posts/**").permitAll()
                         .requestMatchers("/posts/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/members").permitAll()
@@ -58,6 +64,7 @@ public class SecurityConfig {
                         .requestMatchers("/cart", "/orders").permitAll()
                         .requestMatchers("/api/cart/**").authenticated()
                         .requestMatchers("/api/orders/**").authenticated()
+                        //상품 조회는 공개, 등록/수정/삭제는 ADMIN만 가능
                         .requestMatchers(HttpMethod.GET, "/products", "/products/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/products").hasRole("ADMIN")
@@ -65,8 +72,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
                         .anyRequest().permitAll()
                 )
+                //UsernamePasswordAuthenticationFilter 앞에 JWT 필터 삽입
                 .addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
+        //Google OAuth2 클라이언트 설정이 있을 때만 OAuth2 로그인 등록
         if (clientRegistrationRepository.getIfAvailable() != null) {
             security.oauth2Login(oauth -> oauth
                     .userInfoEndpoint(ui -> ui.userService(oAuth2MemberService))

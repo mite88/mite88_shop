@@ -6,6 +6,9 @@ import io.mite88.mite88shop.members.entity.Member;
 
 public class MemberMapper {
 
+    /**
+     * Member 엔티티 → MemberDescription 변환 (API 응답용)
+     */
     public static MemberDescription toDescription(Member member) {
         return new MemberDescription(
                 member.getUsername(),
@@ -15,6 +18,9 @@ public class MemberMapper {
         );
     }
 
+    /**
+     * Member 엔티티 → MemberDetails 변환 (Spring Security 인증용)
+     */
     public static MemberDetails toDetails(Member member) {
         return new MemberDetails(
                 member.getUsername(),

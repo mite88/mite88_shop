@@ -26,6 +26,9 @@ public class CartService {
     private final MemberService memberService;
     private final ProductService productService;
 
+    /**
+     * 내 장바구니 조회 - 없으면 빈 장바구니 자동 생성
+     */
     public CartDescription getMyCart(String username) {
         Member member = memberService.findByUsername(username);
         Cart cart = cartRepository.findByMember(member)
@@ -33,22 +36,31 @@ public class CartService {
         return CartMapper.toDescription(cart);
     }
 
+    /**
+     * 장바구니 상품 추가 - 이미 담긴 상품이면 수량 합산
+     */
     @Transactional
     public CartDescription addItem(String username, CartItemRequest request) {
         Member member = memberService.findByUsername(username);
+        //장바구니 없으면 자동 생성
         Cart cart = cartRepository.findByMember(member)
                 .orElseGet(() -> cartRepository.save(Cart.createFor(member)));
         Product product = productService.getProductOrThrow(request.productId());
 
         cartItemRepository.findByCartAndProduct(cart, product)
                 .ifPresentOrElse(
+                        //동일 상품이면 수량 추가
                         existing -> existing.updateQuantity(existing.getQuantity() + request.quantity()),
+                        //신규 상품이면 새 항목 저장
                         () -> cartItemRepository.save(CartItem.of(cart, product, request.quantity()))
                 );
 
         return CartMapper.toDescription(cartRepository.findByMember(member).orElseThrow());
     }
 
+    /**
+     * 장바구니 상품 수량 수정
+     */
     @Transactional
     public CartDescription updateItem(String username, Long cartItemId, int quantity) {
         CartItem item = getCartItemOrThrow(cartItemId);
@@ -57,6 +69,9 @@ public class CartService {
         return CartMapper.toDescription(item.getCart());
     }
 
+    /**
+     * 장바구니 상품 삭제
+     */
     @Transactional
     public CartDescription removeItem(String username, Long cartItemId) {
         CartItem item = getCartItemOrThrow(cartItemId);
@@ -66,11 +81,17 @@ public class CartService {
         return CartMapper.toDescription(cart);
     }
 
+    /**
+     * 장바구니 항목 조회 - 없으면 BusinessException 던짐
+     */
     private CartItem getCartItemOrThrow(Long cartItemId) {
         return cartItemRepository.findById(cartItemId)
                 .orElseThrow(() -> new BusinessException(ResponseCode.CART_ITEM_NOT_FOUND));
     }
 
+    /**
+     * 장바구니 항목 소유자 검증 - 타인 접근 차단 (정보 노출 방지를 위해 NOT_FOUND로 응답)
+     */
     private void validateOwner(String username, CartItem item) {
         if (!item.getCart().getMember().getUsername().equals(username)) {
             throw new BusinessException(ResponseCode.CART_ITEM_NOT_FOUND);

@@ -18,6 +18,9 @@ public class AuthenticationSuccessHandlerImpl implements AuthenticationSuccessHa
 
     private final AuthService authService;
 
+    /**
+     * 폼 로그인 성공 시 JWT 액세스·리프레시 토큰을 JSON으로 응답
+     */
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException {
