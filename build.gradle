@@ -4,9 +4,15 @@ plugins {
     id 'io.spring.dependency-management' version '1.1.7'
 }
 
+<<<<<<< HEAD
 group = 'io.dnlwjtud'
 version = '0.0.1-SNAPSHOT'
 description = 'blog'
+=======
+group = 'io.mite88'
+version = '0.0.1-SNAPSHOT'
+description = 'mite88shop'
+>>>>>>> origin/main
 
 java {
     toolchain {

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+  <title>홈</title>
+</head>
+<body>
+<div layout:fragment="content">
+  <h1 class="text-3xl font-bold mb-6">상품 목록</h1>
+
+  <!-- 카테고리 필터 -->
+  <div id="category-tabs" class="tabs tabs-boxed mb-6">
+    <button class="tab tab-active" onclick="filterProducts(this, null)">전체</button>
+    <button class="tab" onclick="filterProducts(this, '신발')">신발</button>
+    <button class="tab" onclick="filterProducts(this, '의류')">의류</button>
+    <button class="tab" onclick="filterProducts(this, '가방')">가방</button>
+    <button class="tab" onclick="filterProducts(this, '액세서리')">액세서리</button>
+  </div>
+
+  <!-- 상품 그리드 -->
+  <div id="product-grid"
+       class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <div class="col-span-full flex justify-center py-12">
+      <span class="loading loading-spinner loading-lg"></span>
+    </div>
+  </div>
+</div>
+
+<th:block layout:fragment="scripts">
+  <script th:src="@{/js/product.js}"></script>
+  <script>
+    function filterProducts(btn, category) {
+      document.querySelectorAll('#category-tabs .tab').forEach(t => t.classList.remove('tab-active'));
+      btn.classList.add('tab-active');
+      loadProducts(category);
+    }
+
+    loadProducts();
+  </script>
+</th:block>
+</body>
+</html>

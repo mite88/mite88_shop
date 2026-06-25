@@ -1,0 +1,31 @@
+name: Deployment Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    env:
+      JAVA_HOME: /usr/lib/jvm/java-25-openjdk-amd64
+      PATH: ${{ env.JAVA_HOME }}/bin:${{ env.PATH }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew clean build
+
+      - name: Build Docker Image
+        run: sudo docker build -t my-app-image .
+
+      - name: Make Script Executable
+        run: sudo chmod +x deployment.sh
+
+      - name: Run Deployment Script
+        run: sudo ./deployment.sh my-app-image my-container 8080

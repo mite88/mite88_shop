@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+  <title>장바구니</title>
+</head>
+<body>
+<div layout:fragment="content">
+  <h1 class="text-3xl font-bold mb-6">장바구니</h1>
+
+  <div id="cart-loading" class="flex justify-center py-12">
+    <span class="loading loading-spinner loading-lg"></span>
+  </div>
+
+  <div id="cart-empty" class="hidden text-center py-20">
+    <div class="text-6xl mb-4">🛒</div>
+    <p class="text-xl text-base-content/50">장바구니가 비어있습니다.</p>
+    <a th:href="@{/}" class="btn btn-primary mt-4">쇼핑 계속하기</a>
+  </div>
+
+  <div id="cart-content" class="hidden">
+    <div class="overflow-x-auto">
+      <table class="table table-zebra">
+        <thead>
+          <tr>
+            <th>상품명</th>
+            <th>단가</th>
+            <th>수량</th>
+            <th>소계</th>
+            <th>삭제</th>
+          </tr>
+        </thead>
+        <tbody id="cart-items"></tbody>
+      </table>
+    </div>
+
+    <div class="flex justify-end mt-6">
+      <div class="card bg-base-100 shadow w-72">
+        <div class="card-body">
+          <div class="flex justify-between text-lg font-bold">
+            <span>총 금액</span>
+            <span id="cart-total" class="text-primary"></span>
+          </div>
+          <button onclick="placeOrder()" class="btn btn-primary w-full mt-3">
+            주문하기
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<th:block layout:fragment="scripts">
+  <script th:src="@{/js/cart.js}"></script>
+  <script th:src="@{/js/order.js}"></script>
+  <script>
+    if (!Auth.isLoggedIn()) window.location.href = '/login';
+    else loadCart();
+  </script>
+</th:block>
+</body>
+</html>
