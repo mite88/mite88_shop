@@ -28,12 +28,15 @@ public class AiJobController {
 
     private final JobService jobService;
 
-    // ① Job 제출
+    /**
+     * AI 작업 제출 - 202 Accepted와 함께 jobId 반환
+     */
     @PostMapping("/jobs")
     public ResponseEntity<CommonResponse<Map<String, String>>> submit(
             @RequestBody Map<String, String> body) {
 
         String input = body.get("input");
+        //입력값 필수 검증
         if (input == null || input.isBlank()) {
             return ResponseEntity
                     .status(ResponseCode.INPUT_REQUIRED.getHttpStatus())
@@ -45,7 +48,9 @@ public class AiJobController {
                 .body(CommonResponse.success(Map.of("jobId", jobId)));
     }
 
-    // ② Job 상태/결과 조회 (클라이언트 Polling)
+    /**
+     * AI 작업 상태/결과 조회 - 클라이언트 폴링용
+     */
     @GetMapping("/jobs/{jobId}")
     public ResponseEntity<CommonResponse<AiJob>> getJob(@PathVariable String jobId) {
         AiJob job = jobService.getJob(jobId);

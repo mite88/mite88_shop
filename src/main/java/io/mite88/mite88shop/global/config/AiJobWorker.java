@@ -48,6 +48,9 @@ public class AiJobWorker {
     @Value("${AI_JOB_QUEUE_KEY}")
     private String queueKey;
 
+    /**
+     * 큐에서 작업을 꺼내 AI 모델 호출 후 결과 저장 - PENDING → PROCESSING → DONE/FAILED
+     */
     @Scheduled(fixedDelayString = "${AI_JOB_WORKER_DELAY}")
     public void processQueue() {
         // LPOP: 큐에서 꺼내기 (없으면 null)
@@ -62,6 +65,7 @@ public class AiJobWorker {
 
         log.info("Processing job: {}", jobId);
 
+        //상태를 PROCESSING으로 변경 (record는 불변이므로 빌더로 재생성)
         job = AiJob.builder()
                 .jobId(job.jobId())
                 .status("PROCESSING")
@@ -77,6 +81,7 @@ public class AiJobWorker {
         try {
             Object result = aiModelClient.callModel(job.input());
 
+            //AI 호출 성공 시 DONE으로 변경
             job = AiJob.builder()
                     .jobId(job.jobId())
                     .status("DONE")
@@ -91,6 +96,7 @@ public class AiJobWorker {
         } catch (Exception e) {
             log.error("Job failed: {} - {}", jobId, e.getMessage());
 
+            //AI 호출 실패 시 FAILED로 변경
             job = AiJob.builder()
                     .jobId(job.jobId())
                     .status("FAILED")

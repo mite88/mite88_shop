@@ -27,11 +27,17 @@ public class CommonResponse<T> {
     @Schema(description = "데이터")
     private T data;
 
+    /**
+     * 성공 응답 생성 (S000)
+     */
     @Operation(summary = "성공 응답 생성", hidden = true)
     public static <T> CommonResponse<T> success(T data) {
         return of(ResponseCode.SUCCESS, data);
     }
 
+    /**
+     * 커스텀 ResponseCode로 성공 응답 생성
+     */
     @Operation(summary = "성공 응답 생성", hidden = true)
     public static <T> CommonResponse<T> successWithMessage(T data, ResponseCode responseCode) {
         return CommonResponse.<T>builder()
@@ -42,6 +48,9 @@ public class CommonResponse<T> {
                 .build();
     }
 
+    /**
+     * ResponseCode의 HTTP 상태 기반으로 성공/실패 판단하여 응답 생성
+     */
     @Operation(summary = "공통 응답 생성", hidden = true)
     public static <T> CommonResponse<T> of(ResponseCode responseCode, T data) {
         return CommonResponse.<T>builder()
@@ -52,11 +61,17 @@ public class CommonResponse<T> {
                 .build();
     }
 
+    /**
+     * 실패 응답 생성 - ResponseCode의 기본 메시지 사용
+     */
     @Operation(summary = "실패 응답 생성", hidden = true)
     public static <T> CommonResponse<T> fail(ResponseCode responseCode) {
         return fail(responseCode, responseCode.getMessage());
     }
 
+    /**
+     * 실패 응답 생성 - 커스텀 메시지 사용
+     */
     @Operation(summary = "실패 응답 생성", hidden = true)
     public static <T> CommonResponse<T> fail(ResponseCode responseCode, String message) {
         return CommonResponse.<T>builder()

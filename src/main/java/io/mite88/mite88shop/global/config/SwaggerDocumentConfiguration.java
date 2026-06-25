@@ -21,16 +21,18 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SwaggerDocumentConfiguration {
 
+    /**
+     * Swagger UI에 Bearer JWT 인증 헤더 입력 폼 추가
+     */
     @Bean
     public OpenAPI openAPI(){
-        //인증방식 설정
-        SecurityScheme  securityScheme= new SecurityScheme()
+        //인증 방식 설정 - Bearer JWT
+        SecurityScheme securityScheme = new SecurityScheme()
                 .type(SecurityScheme.Type.HTTP)
                 .scheme("bearer")
                 .bearerFormat("JWT");
 
-        SecurityRequirement securityRequirement =  new SecurityRequirement().addList("bearerAuth");
-
+        SecurityRequirement securityRequirement = new SecurityRequirement().addList("bearerAuth");
 
         OpenAPI openAPI = new OpenAPI();
         openAPI.components(

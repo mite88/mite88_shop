@@ -25,11 +25,16 @@ public class MemberService implements UserDetailsService {
 
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * 회원 가입 - 아이디/이메일 중복 검사 후 비밀번호 암호화하여 저장
+     */
     @Transactional
     public MemberDescription save(MemberSaveRequest request) {
+        //아이디 중복 검사
         if (repository.findByUsername(request.username()).isPresent()) {
             throw new BusinessException(ResponseCode.DUPLICATE_USERNAME);
         }
+        //이메일 중복 검사
         if (repository.findByEmail(request.email()).isPresent()) {
             throw new BusinessException(ResponseCode.DUPLICATE_EMAIL);
         }
@@ -48,6 +53,9 @@ public class MemberService implements UserDetailsService {
         return MemberMapper.toDescription(saved);
     }
 
+    /**
+     * Spring Security 인증용 - username으로 UserDetails 조회
+     */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
@@ -60,6 +68,9 @@ public class MemberService implements UserDetailsService {
         return MemberMapper.toDetails(member);
     }
 
+    /**
+     * 도메인 서비스용 - username으로 Member 엔티티 직접 반환
+     */
     public Member findByUsername(String username) {
         return repository.findByUsername(username).orElseThrow(
                 () -> new UsernameNotFoundException("User not found with username: " + username)

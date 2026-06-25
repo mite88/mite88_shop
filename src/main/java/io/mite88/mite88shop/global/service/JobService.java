@@ -52,6 +52,9 @@ public class JobService {
     @Value("${AI_JOB_QUEUE_TTL}")
     private long ttl;
 
+    /**
+     * AI 작업 등록 - Redis에 작업 데이터 저장 후 큐에 jobId 삽입
+     */
     @Transactional
     public String submitJob(String input) {
         String jobId = UUID.randomUUID().toString();
@@ -76,13 +79,18 @@ public class JobService {
         return jobId;
     }
 
+    /**
+     * jobId로 작업 상태 조회
+     */
     public AiJob getJob(String jobId) {
         return redisTemplate.opsForValue().get(jobPrefix + jobId);
     }
 
+    /**
+     * 작업 상태 갱신 - record는 불변이므로 빌더로 재생성하여 덮어씀
+     */
     @Transactional
     public void updateJob(AiJob job) {
-        // record는 불변이므로 빌더로 새로 생성하여 덮어쓰기
         AiJob updatedJob = AiJob.builder()
                 .jobId(job.jobId())
                 .status(job.status())
@@ -95,10 +103,13 @@ public class JobService {
 
         redisTemplate.opsForValue().set(jobPrefix + job.jobId(), updatedJob, ttl, TimeUnit.SECONDS);
 
-        // 로그 기록
+        //상태 변경 시마다 MySQL에 이력 기록
         saveJobLog(updatedJob.jobId(), updatedJob.status(), updatedJob.errorMessage());
     }
 
+    /**
+     * 작업 상태 변경 이력을 MySQL에 저장
+     */
     @Transactional
     private void saveJobLog(String jobId, String status, String message) {
         AiJobLog log = AiJobLog.builder()

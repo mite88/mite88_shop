@@ -19,18 +19,27 @@ public class ProductApiController implements ProductApiDocs {
 
     private final ProductService productService;
 
+    /**
+     * 상품 등록 (ADMIN 전용)
+     */
     @Override
     @PostMapping
     public ResponseEntity<ProductDescription> save(@Valid @RequestBody ProductSaveRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(productService.save(request));
     }
 
+    /**
+     * 상품 단건 조회
+     */
     @Override
     @GetMapping("/{id}")
     public ResponseEntity<ProductDescription> findById(@PathVariable Long id) {
         return ResponseEntity.ok(productService.findById(id));
     }
 
+    /**
+     * 상품 목록 조회 - category 파라미터 있으면 카테고리별 필터링
+     */
     @Override
     @GetMapping
     public ResponseEntity<List<ProductDescription>> findAll(@RequestParam(required = false) String category) {
@@ -40,12 +49,18 @@ public class ProductApiController implements ProductApiDocs {
         return ResponseEntity.ok(result);
     }
 
+    /**
+     * 상품 수정 (ADMIN 전용)
+     */
     @Override
     @PatchMapping("/{id}")
     public ResponseEntity<ProductDescription> update(@PathVariable Long id, @Valid @RequestBody ProductUpdateRequest request) {
         return ResponseEntity.ok(productService.update(id, request));
     }
 
+    /**
+     * 상품 삭제 (ADMIN 전용)
+     */
     @Override
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {

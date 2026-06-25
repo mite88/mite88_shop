@@ -23,7 +23,8 @@ public class Member {
 
     private String email;
 
-    private String providerId; // OAuth2 (e.g. google sub)
+    //OAuth2 제공자 식별자 (예: Google sub)
+    private String providerId;
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -32,16 +33,20 @@ public class Member {
     private LocalDateTime updatedAt;
 
     @Builder
-    public Member(String username, String password, String email, String providerId, Role role) { // role 인자 추가
+    public Member(String username, String password, String email, String providerId, Role role) {
         this.username = username;
         this.password = password;
         this.email = email;
         this.providerId = providerId;
-        this.role = (role != null) ? role : Role.MEMBER; // role이 제공되면 사용, 아니면 기본값 MEMBER
+        //role 미지정 시 기본값 MEMBER
+        this.role = (role != null) ? role : Role.MEMBER;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
 
+    /**
+     * OAuth2 회원 생성 - 비밀번호 없이 소셜 로그인 전용 회원으로 등록
+     */
     public static Member oauthMember(String username, String email) {
         Member member = new Member();
         member.username = username;

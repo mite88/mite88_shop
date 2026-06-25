@@ -13,6 +13,9 @@ public class MemberApiController{
 
     private final MemberService service;
 
+    /**
+     * 회원 가입
+     */
     @PostMapping("/members")
     public ResponseEntity<MemberDescription> saveMember(
          @RequestBody MemberSaveRequest request

@@ -4,6 +4,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 
+/**
+ * API 응답 코드 정의 - HTTP 상태 + 코드 문자열 + 한국어 메시지로 구성
+ * BusinessException 발생 시 GlobalExceptionHandler가 이 값을 기반으로 응답 직렬화
+ */
 @Getter
 @RequiredArgsConstructor
 public enum ResponseCode {
@@ -22,7 +26,7 @@ public enum ResponseCode {
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "A003", "유효하지 않은 RefreshToken입니다."),
     REFRESH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "A004", "만료되었거나 로그아웃된 RefreshToken입니다."),
     REFRESH_TOKEN_MISMATCH(HttpStatus.UNAUTHORIZED, "A005", "제공된 RefreshToken이 현재 유효한 RefreshToken과 일치하지 않습니다."),
-    UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "A006", "인증되지 않은 접근입니다."), // Added for general unauthorized access
+    UNAUTHORIZED_ACCESS(HttpStatus.UNAUTHORIZED, "A006", "인증되지 않은 접근입니다."),
 
     // Common
     INPUT_REQUIRED(HttpStatus.BAD_REQUEST, "C001", "입력값이 필요합니다."),
