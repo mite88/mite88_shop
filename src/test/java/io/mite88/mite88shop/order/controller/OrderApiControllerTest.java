@@ -1,6 +1,6 @@
 package io.mite88.mite88shop.order.controller;
 
-import io.mite88.mite88shop.mite88shop.global.exception.BusinessException;
+import io.mite88.mite88shop.global.exception.BusinessException;
 import io.mite88.mite88shop.order.dto.OrderDescription;
 import io.mite88.mite88shop.order.dto.OrderItemDescription;
 import io.mite88.mite88shop.order.entity.OrderStatus;
@@ -18,8 +18,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static io.mite88.mite88shop.mite88shop.global.code.ResponseCode.EMPTY_CART;
-import static io.mite88.mite88shop.mite88shop.global.code.ResponseCode.ORDER_CANCEL_NOT_ALLOWED;
+import static io.mite88.mite88shop.global.code.ResponseCode.EMPTY_CART;
+import static io.mite88.mite88shop.global.code.ResponseCode.ORDER_CANCEL_NOT_ALLOWED;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;

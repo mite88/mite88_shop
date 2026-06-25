@@ -1,7 +1,7 @@
 package io.mite88.mite88shop.members.config.handler;
 
-import io.mite88.mite88shop.mite88shop.global.code.ResponseCode;
-import io.mite88.mite88shop.mite88shop.global.dto.CommonResponse;
+import io.mite88.mite88shop.global.code.ResponseCode;
+import io.mite88.mite88shop.global.dto.CommonResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

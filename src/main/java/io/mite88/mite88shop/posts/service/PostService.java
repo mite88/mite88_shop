@@ -1,7 +1,7 @@
 package io.mite88.mite88shop.posts.service;
 
-import io.mite88.mite88shop.mite88shop.global.code.ResponseCode;
-import io.mite88.mite88shop.mite88shop.global.exception.BusinessException;
+import io.mite88.mite88shop.global.code.ResponseCode;
+import io.mite88.mite88shop.global.exception.BusinessException;
 import io.mite88.mite88shop.members.entity.Member;
 import io.mite88.mite88shop.members.service.MemberService;
 import io.mite88.mite88shop.posts.dto.EditPostRequest;
@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException; // 더 이상 사용하지 않으므로 제거 가능
 import java.util.Optional;
 
 @Service

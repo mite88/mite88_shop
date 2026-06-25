@@ -1,6 +1,6 @@
 package io.mite88.mite88shop.posts.controller;
 
-import io.mite88.mite88shop.mite88shop.global.exception.BusinessException;
+import io.mite88.mite88shop.global.exception.BusinessException;
 import io.mite88.mite88shop.posts.dto.EditPostRequest;
 import io.mite88.mite88shop.posts.dto.PostDescription;
 import io.mite88.mite88shop.posts.service.PostService;
@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
@@ -19,8 +18,8 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
-import static io.mite88.mite88shop.mite88shop.global.code.ResponseCode.POST_NOT_FOUND;
-import static io.mite88.mite88shop.mite88shop.global.code.ResponseCode.UNAUTHORIZED_ACCESS;
+import static io.mite88.mite88shop.global.code.ResponseCode.POST_NOT_FOUND;
+import static io.mite88.mite88shop.global.code.ResponseCode.UNAUTHORIZED_ACCESS;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;

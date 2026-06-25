@@ -1,6 +1,6 @@
 package io.mite88.mite88shop.product.controller;
 
-import io.mite88.mite88shop.mite88shop.global.exception.BusinessException;
+import io.mite88.mite88shop.global.exception.BusinessException;
 import io.mite88.mite88shop.product.dto.ProductDescription;
 import io.mite88.mite88shop.product.dto.ProductSaveRequest;
 import io.mite88.mite88shop.product.dto.ProductUpdateRequest;
@@ -20,7 +20,7 @@ import tools.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static io.mite88.mite88shop.mite88shop.global.code.ResponseCode.PRODUCT_NOT_FOUND;
+import static io.mite88.mite88shop.global.code.ResponseCode.PRODUCT_NOT_FOUND;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
