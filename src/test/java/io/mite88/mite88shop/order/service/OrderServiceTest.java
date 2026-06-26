@@ -76,7 +76,7 @@ class OrderServiceTest {
     @DisplayName("주문 성공")
     void placeOrder_Success() {
         when(memberService.findByUsername("testuser")).thenReturn(testMember);
-        when(cartRepository.findByMember(testMember)).thenReturn(Optional.of(testCart));
+        when(cartRepository.findFirstByMember(testMember)).thenReturn(Optional.of(testCart));
         when(orderRepository.save(any(Order.class))).thenReturn(testOrder);
 
         OrderDescription result = orderService.placeOrder("testuser");
@@ -90,7 +90,7 @@ class OrderServiceTest {
     @DisplayName("주문 실패 - 장바구니 없음")
     void placeOrder_CartNotFound() {
         when(memberService.findByUsername("testuser")).thenReturn(testMember);
-        when(cartRepository.findByMember(testMember)).thenReturn(Optional.empty());
+        when(cartRepository.findFirstByMember(testMember)).thenReturn(Optional.empty());
 
         BusinessException ex = assertThrows(BusinessException.class,
                 () -> orderService.placeOrder("testuser"));
@@ -102,7 +102,7 @@ class OrderServiceTest {
     void placeOrder_OutOfStock() {
         ReflectionTestUtils.setField(testProduct, "stock", 1); // 재고 1인데 2개 주문
         when(memberService.findByUsername("testuser")).thenReturn(testMember);
-        when(cartRepository.findByMember(testMember)).thenReturn(Optional.of(testCart));
+        when(cartRepository.findFirstByMember(testMember)).thenReturn(Optional.of(testCart));
         when(orderRepository.save(any(Order.class))).thenReturn(testOrder);
 
         BusinessException ex = assertThrows(BusinessException.class,

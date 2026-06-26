@@ -9,6 +9,7 @@ import io.mite88.mite88shop.members.mapper.MemberMapper;
 import io.mite88.mite88shop.members.repository.MemberJpaRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -48,9 +49,16 @@ public class MemberService implements UserDetailsService {
                 .providerId(null)
                 .build();
 
-        Member saved = repository.save(member);
-
-        return MemberMapper.toDescription(saved);
+        try {
+            Member saved = repository.saveAndFlush(member);
+            return MemberMapper.toDescription(saved);
+        } catch (DataIntegrityViolationException e) {
+            // 동시 가입 요청으로 check-then-act 사이에 race 발생한 경우 원인 필드 재확인
+            if (repository.findByUsername(request.username()).isPresent()) {
+                throw new BusinessException(ResponseCode.DUPLICATE_USERNAME);
+            }
+            throw new BusinessException(ResponseCode.DUPLICATE_EMAIL);
+        }
     }
 
     /**

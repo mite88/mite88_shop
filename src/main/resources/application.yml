@@ -3,7 +3,7 @@ spring:
     name: blog
 
   profiles:
-    active: health,prometheus,mysql
+    active: mysql,redis,dev
 
   security:
     oauth2:
@@ -34,4 +34,12 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,prometheus
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}

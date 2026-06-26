@@ -29,11 +29,10 @@ public class CartService {
     /**
      * 내 장바구니 조회 - 없으면 빈 장바구니 자동 생성
      */
+    @Transactional
     public CartDescription getMyCart(String username) {
         Member member = memberService.findByUsername(username);
-        Cart cart = cartRepository.findByMember(member)
-                .orElseGet(() -> cartRepository.save(Cart.createFor(member)));
-        return CartMapper.toDescription(cart);
+        return CartMapper.toDescription(findOrCreateCart(member));
     }
 
     /**
@@ -42,12 +41,10 @@ public class CartService {
     @Transactional
     public CartDescription addItem(String username, CartItemRequest request) {
         Member member = memberService.findByUsername(username);
-        //장바구니 없으면 자동 생성
-        Cart cart = cartRepository.findByMember(member)
-                .orElseGet(() -> cartRepository.save(Cart.createFor(member)));
+        Cart cart = findOrCreateCart(member);
         Product product = productService.getProductOrThrow(request.productId());
 
-        cartItemRepository.findByCartAndProduct(cart, product)
+        cartItemRepository.findFirstByCartAndProduct(cart, product)
                 .ifPresentOrElse(
                         existing -> {
                             // 이미 재고 한도까지 담겨 있으면 추가 불가
@@ -68,7 +65,12 @@ public class CartService {
                         }
                 );
 
-        return CartMapper.toDescription(cartRepository.findByMember(member).orElseThrow());
+        return CartMapper.toDescription(cartRepository.findFirstByMember(member).orElseThrow());
+    }
+
+    private Cart findOrCreateCart(Member member) {
+        return cartRepository.findFirstByMember(member)
+                .orElseGet(() -> cartRepository.save(Cart.createFor(member)));
     }
 
     /**
