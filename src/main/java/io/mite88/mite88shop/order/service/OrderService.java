@@ -34,7 +34,7 @@ public class OrderService {
     @Transactional
     public OrderDescription placeOrder(String username) {
         Member member = memberService.findByUsername(username);
-        Cart cart = cartRepository.findByMember(member)
+        Cart cart = cartRepository.findFirstByMember(member)
                 .orElseThrow(() -> new BusinessException(ResponseCode.EMPTY_CART));
 
         if (cart.getCartItems().isEmpty()) {

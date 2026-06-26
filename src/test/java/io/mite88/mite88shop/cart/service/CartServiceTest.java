@@ -73,7 +73,7 @@ class CartServiceTest {
     @DisplayName("장바구니 조회 - 장바구니 없으면 자동 생성")
     void getMyCart_AutoCreate() {
         when(memberService.findByUsername("testuser")).thenReturn(testMember);
-        when(cartRepository.findByMember(testMember)).thenReturn(Optional.empty());
+        when(cartRepository.findFirstByMember(testMember)).thenReturn(Optional.empty());
         when(cartRepository.save(any(Cart.class))).thenReturn(testCart);
 
         CartDescription result = cartService.getMyCart("testuser");
@@ -87,7 +87,7 @@ class CartServiceTest {
     @DisplayName("장바구니 조회 - 기존 장바구니 반환")
     void getMyCart_Existing() {
         when(memberService.findByUsername("testuser")).thenReturn(testMember);
-        when(cartRepository.findByMember(testMember)).thenReturn(Optional.of(testCart));
+        when(cartRepository.findFirstByMember(testMember)).thenReturn(Optional.of(testCart));
 
         CartDescription result = cartService.getMyCart("testuser");
 
@@ -100,9 +100,9 @@ class CartServiceTest {
     void addItem_NewProduct() {
         CartItemRequest request = new CartItemRequest(1L, 2);
         when(memberService.findByUsername("testuser")).thenReturn(testMember);
-        when(cartRepository.findByMember(testMember)).thenReturn(Optional.of(testCart));
+        when(cartRepository.findFirstByMember(testMember)).thenReturn(Optional.of(testCart));
         when(productService.getProductOrThrow(1L)).thenReturn(testProduct);
-        when(cartItemRepository.findByCartAndProduct(testCart, testProduct)).thenReturn(Optional.empty());
+        when(cartItemRepository.findFirstByCartAndProduct(testCart, testProduct)).thenReturn(Optional.empty());
         when(cartItemRepository.save(any(CartItem.class))).thenReturn(testCartItem);
 
         cartService.addItem("testuser", request);
@@ -115,9 +115,9 @@ class CartServiceTest {
     void addItem_ExistingProduct_QuantityIncreased() {
         CartItemRequest request = new CartItemRequest(1L, 3);
         when(memberService.findByUsername("testuser")).thenReturn(testMember);
-        when(cartRepository.findByMember(testMember)).thenReturn(Optional.of(testCart));
+        when(cartRepository.findFirstByMember(testMember)).thenReturn(Optional.of(testCart));
         when(productService.getProductOrThrow(1L)).thenReturn(testProduct);
-        when(cartItemRepository.findByCartAndProduct(testCart, testProduct)).thenReturn(Optional.of(testCartItem));
+        when(cartItemRepository.findFirstByCartAndProduct(testCart, testProduct)).thenReturn(Optional.of(testCartItem));
 
         cartService.addItem("testuser", request);
 

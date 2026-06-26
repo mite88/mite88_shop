@@ -63,7 +63,7 @@ class MemberServiceTest {
         when(memberJpaRepository.findByUsername(username)).thenReturn(Optional.empty());
         when(memberJpaRepository.findByEmail(email)).thenReturn(Optional.empty());
         when(passwordEncoder.encode(password)).thenReturn(encodedPassword);
-        when(memberJpaRepository.save(any(Member.class))).thenReturn(member);
+        when(memberJpaRepository.saveAndFlush(any(Member.class))).thenReturn(member);
 
         MemberDescription result = memberService.save(memberSaveRequest);
 
@@ -74,7 +74,7 @@ class MemberServiceTest {
         verify(memberJpaRepository, times(1)).findByUsername(username);
         verify(memberJpaRepository, times(1)).findByEmail(email);
         verify(passwordEncoder, times(1)).encode(password);
-        verify(memberJpaRepository, times(1)).save(any(Member.class));
+        verify(memberJpaRepository, times(1)).saveAndFlush(any(Member.class));
     }
 
     @Test

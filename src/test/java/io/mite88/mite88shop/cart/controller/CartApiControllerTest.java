@@ -91,7 +91,7 @@ class CartApiControllerTest {
                 List.of(new CartItemDescription(1L, 1L, "나이키 운동화", 89000, 5, 445000, 100)), 445000);
         when(cartService.updateItem("testuser", 1L, 5)).thenReturn(updated);
 
-        mockMvc.perform(patch("/cart/items/1")
+        mockMvc.perform(patch("/api/cart/items/1")
                         .with(user("testuser").roles("USER"))
                         .with(csrf())
                         .param("quantity", "5"))
@@ -107,7 +107,7 @@ class CartApiControllerTest {
         CartDescription emptyCart = new CartDescription(1L, List.of(), 0);
         when(cartService.removeItem("testuser", 1L)).thenReturn(emptyCart);
 
-        mockMvc.perform(delete("/cart/items/1")
+        mockMvc.perform(delete("/api/cart/items/1")
                         .with(user("testuser").roles("USER"))
                         .with(csrf()))
                 .andDo(print())

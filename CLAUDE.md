@@ -27,7 +27,7 @@ CI/CD (`.github/workflows/deployment-workflow.yml`)는 self-hosted runner에서 
 
 ## 활성 프로파일
 
-`application.yml` 기본값: `health,prometheus,mysql,redis,dev`
+`application.yml` 기본값: `mysql,redis,dev`
 
 | 프로파일 | 설정 파일 | 역할 |
 |---|---|---|
@@ -85,7 +85,7 @@ JWT + 선택적 세션 (`SessionCreationPolicy.IF_REQUIRED`):
 
 ### URL 접근 권한 (SecurityConfig)
 
-- 공개: `/`, `/login`, `/signup`, Swagger(`/swagger-ui/**`, `/v3/api-docs/**`), OAuth2 리다이렉트
+- 공개: `/`, `/login`, `/signup`, Swagger(`/swagger-ui/**`, `/v3/api-docs/**`), OAuth2 리다이렉트, Actuator(`/actuator/**` — Prometheus 스크레이핑 포함)
 - 공개 GET: `/posts/**`, `/products/**`, `/api/products/**`
 - 인증 필요: `/api/cart/**`, `/api/orders/**`, `/api/v1/auth/logout`
 - ADMIN 전용: `POST/PATCH/DELETE /api/products/**`
@@ -113,7 +113,7 @@ JWT + 선택적 세션 (`SessionCreationPolicy.IF_REQUIRED`):
 
 Flyway가 `src/main/resources/db/migration/`의 스크립트로 스키마 관리. 스키마 변경 시 다음 번호의 `V{n}__설명.sql` 파일 추가 (기존 파일 수정 절대 금지).
 
-현재 마이그레이션: V1 `ai_job_log`, V2 `member`, V3 `posts`, V4 회원 유니크 제약, V5 `product`, V6 `cart`/`cart_item`, V7 `orders`/`order_item`, V8 샘플 상품 데이터.
+현재 마이그레이션: V1 `ai_job_log`, V2 `member`, V3 `posts`, V4 회원 유니크 제약, V5 `product`, V6 `cart`/`cart_item`, V7 `orders`/`order_item`, V8 샘플 상품 데이터, V9 `cart.member_id` UNIQUE 제약, V10 `cart_item(cart_id, product_id)` UNIQUE 제약.
 
 ### 테스트 규약
 
