@@ -28,7 +28,8 @@ public class CartMapper {
         return new CartItemDescription(
                 item.getId(), item.getProduct().getId(), item.getProduct().getName(),
                 item.getProduct().getPrice(), item.getQuantity(),
-                item.getProduct().getPrice() * item.getQuantity()
+                item.getProduct().getPrice() * item.getQuantity(),
+                item.getProduct().getStock()
         );
     }
 }

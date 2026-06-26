@@ -55,4 +55,11 @@ public class Product {
     public void decreaseStock(int quantity) {
         this.stock -= quantity;
     }
+
+    /**
+     * 재고 복구 - 주문 취소 시 호출
+     */
+    public void increaseStock(int quantity) {
+        this.stock += quantity;
+    }
 }

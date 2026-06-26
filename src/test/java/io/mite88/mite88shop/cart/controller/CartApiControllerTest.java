@@ -42,7 +42,7 @@ class CartApiControllerTest {
     private CartService cartService;
 
     private CartDescription sampleCart() {
-        CartItemDescription item = new CartItemDescription(1L, 1L, "나이키 운동화", 89000, 2, 178000);
+        CartItemDescription item = new CartItemDescription(1L, 1L, "나이키 운동화", 89000, 2, 178000, 100);
         return new CartDescription(1L, List.of(item), 178000);
     }
 
@@ -88,7 +88,7 @@ class CartApiControllerTest {
     @DisplayName("장바구니 수량 변경 성공")
     void updateItem_Success() throws Exception {
         CartDescription updated = new CartDescription(1L,
-                List.of(new CartItemDescription(1L, 1L, "나이키 운동화", 89000, 5, 445000)), 445000);
+                List.of(new CartItemDescription(1L, 1L, "나이키 운동화", 89000, 5, 445000, 100)), 445000);
         when(cartService.updateItem("testuser", 1L, 5)).thenReturn(updated);
 
         mockMvc.perform(patch("/cart/items/1")
