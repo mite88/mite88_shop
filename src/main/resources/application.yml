@@ -3,7 +3,7 @@ spring:
     name: blog
 
   profiles:
-    active: health,prometheus,mysql
+    active: mysql,redis,dev
 
   security:
     oauth2:
@@ -29,9 +29,3 @@ custom:
       ttl: ${AI_JOB_QUEUE_TTL:3600}
     worker:
       delay: ${AI_JOB_WORKER_DELAY:1000}
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,prometheus

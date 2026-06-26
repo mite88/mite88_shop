@@ -37,17 +37,14 @@
         </div>
 
         <!-- 수량 선택 -->
-        <div id="qty-controls" class="flex items-center gap-3">
+        <div class="flex items-center gap-3">
           <button class="btn btn-outline btn-sm" onclick="changeQty(-1)">−</button>
           <span id="qty-display" class="text-lg font-semibold w-8 text-center">1</span>
           <button class="btn btn-outline btn-sm" onclick="changeQty(1)">+</button>
         </div>
-        <div id="out-of-stock-label" class="hidden">
-          <span class="badge badge-error badge-lg">재고없음</span>
-        </div>
 
         <div class="flex gap-3">
-          <button id="add-to-cart-btn" onclick="addToCart()" class="btn btn-primary btn-lg flex-1">
+          <button onclick="addToCart()" class="btn btn-primary btn-lg flex-1">
             🛒 장바구니 담기
           </button>
         </div>

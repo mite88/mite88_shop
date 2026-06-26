@@ -38,9 +38,6 @@ public class Posts {
         this.content = content;
     }
 
-    /**
-     * 게시글 내용 수정
-     */
     public void update(EditPostRequest request) {
 
         this.title = request.title();

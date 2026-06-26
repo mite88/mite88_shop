@@ -13,27 +13,20 @@ async function loadProducts(category = null) {
       return;
     }
 
-    grid.innerHTML = products.map(p => {
-      const outOfStock = p.stock === 0;
-      return `
-      <div class="card shadow-md transition-shadow ${outOfStock ? 'bg-base-200 opacity-70' : 'bg-base-100 hover:shadow-xl cursor-pointer'}"
-           onclick="${outOfStock ? '' : `window.location.href='/products/${p.id}'`}">
+    grid.innerHTML = products.map(p => `
+      <div class="card bg-base-100 shadow-md hover:shadow-xl transition-shadow cursor-pointer"
+           onclick="window.location.href='/products/${p.id}'">
         <div class="card-body">
-          <div class="flex gap-1 flex-wrap">
-            <div class="badge badge-secondary badge-sm">${p.category}</div>
-            ${outOfStock ? '<div class="badge badge-error badge-sm">재고없음</div>' : ''}
-          </div>
+          <div class="badge badge-secondary badge-sm">${p.category}</div>
           <h2 class="card-title text-base mt-1">${p.name}</h2>
           <p class="text-sm text-base-content/60 line-clamp-2">${p.description || ''}</p>
           <div class="flex justify-between items-center mt-3">
-            <span class="text-lg font-bold ${outOfStock ? 'text-base-content/40' : 'text-primary'}">${p.price.toLocaleString()}원</span>
-            <span class="text-xs ${outOfStock ? 'text-error font-semibold' : 'text-base-content/40'}">
-              ${outOfStock ? '재고없음' : `재고 ${p.stock}`}
-            </span>
+            <span class="text-lg font-bold text-primary">${p.price.toLocaleString()}원</span>
+            <span class="text-xs text-base-content/40">재고 ${p.stock}</span>
           </div>
         </div>
       </div>
-    `}).join('');
+    `).join('');
 
   } catch {
     showToast('상품 목록을 불러오지 못했습니다.', 'error');
@@ -62,23 +55,13 @@ async function loadProductDetail(productId) {
     document.getElementById('product-stock').textContent       = currentProduct.stock;
     document.getElementById('product-category').textContent    = currentProduct.category;
 
-    const outOfStock = currentProduct.stock === 0;
-    document.getElementById('qty-controls').classList.toggle('hidden', outOfStock);
-    document.getElementById('out-of-stock-label').classList.toggle('hidden', !outOfStock);
-    document.getElementById('add-to-cart-btn').disabled = outOfStock;
-    if (outOfStock) {
-      document.getElementById('add-to-cart-btn').textContent = '재고없음';
-      document.getElementById('add-to-cart-btn').classList.add('btn-disabled');
-    }
-
   } catch {
     showToast('상품 정보를 불러오지 못했습니다.', 'error');
   }
 }
 
 function changeQty(delta) {
-  if (!currentProduct || currentProduct.stock === 0) return;
-  const max = currentProduct.stock;
+  const max = currentProduct?.stock || 1;
   currentQty = Math.min(max, Math.max(1, currentQty + delta));
   document.getElementById('qty-display').textContent = currentQty;
 }

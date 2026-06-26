@@ -37,9 +37,6 @@ public class Product {
         this.updatedAt = LocalDateTime.now();
     }
 
-    /**
-     * 상품 정보 수정
-     */
     public void update(ProductUpdateRequest request) {
         this.name = request.name();
         this.description = request.description();
@@ -49,17 +46,7 @@ public class Product {
         this.updatedAt = LocalDateTime.now();
     }
 
-    /**
-     * 재고 차감 - 주문 시 호출 (재고 부족 검증은 서비스 레이어에서 선행)
-     */
     public void decreaseStock(int quantity) {
         this.stock -= quantity;
-    }
-
-    /**
-     * 재고 복구 - 주문 취소 시 호출
-     */
-    public void increaseStock(int quantity) {
-        this.stock += quantity;
     }
 }

@@ -10,9 +10,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class PostsExceptionHandler {
 
-    /**
-     * 게시글 수정 권한 없음 - 403 응답
-     */
     @ExceptionHandler(UnAuthorizedUpdateException.class)
     public ResponseEntity<String> handleUnAuthorizedUpdateException(
             UnAuthorizedUpdateException exception

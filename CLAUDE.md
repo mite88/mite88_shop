@@ -2,125 +2,122 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## 빌드 및 테스트 명령어
+## Build and test commands
 
 ```bash
-# 전체 클린 빌드 (결과물: build/libs/mite88shop-0.0.1-SNAPSHOT.jar)
+# Full clean build (produces build/libs/mite88shop-0.0.1-SNAPSHOT.jar)
 ./gradlew clean build
 
-# 테스트 제외 빌드
+# Build without tests
 ./gradlew build -x test
 
-# 전체 테스트 실행
+# Run all tests
 ./gradlew test
 
-# 특정 테스트 클래스 실행
-./gradlew test --tests "io.mite88.mite88shop.cart.service.CartServiceTest"
+# Run a specific test class
+./gradlew test --tests "io.mite88.mite88shop.product.service.ProductServiceTest"
 
-# 특정 테스트 메서드 실행
+# Run a specific test method
 ./gradlew test --tests "io.mite88.mite88shop.product.service.ProductServiceTest.save_Success"
 ```
 
-CI/CD (`.github/workflows/deployment-workflow.yml`)는 self-hosted runner에서 실행: Gradle 빌드 → Docker 이미지 → `deployment.sh my-app-image my-container 8080`.
+CI/CD (`.github/workflows/deployment-workflow.yml`) runs on a self-hosted runner: Gradle build → Docker image → `deployment.sh my-app-image my-container 8080`.
 
-스택: **Spring Boot 4.1.0**, **Java 25**, Gradle
+## Active profiles
 
-## 활성 프로파일
+Default in `application.yml`: `mysql,redis,dev`
 
-`application.yml` 기본값: `health,prometheus,mysql,redis,dev`
+- `mysql` — MySQL datasource (`application-mysql.yml`)
+- `redis` — Redis connection (`application-redis.yml`)
+- `h2` — In-memory H2 for local/test use (`application-h2.yml`)
+- `google` — Google OAuth2 (`application-google.yml`)
+- `dev` — loads `application-dev.properties` with secrets via env vars
 
-| 프로파일 | 설정 파일 | 역할 |
-|---|---|---|
-| `mysql` | `application-mysql.yml` | MySQL 데이터소스; Flyway 활성화; `ddl-auto: none` |
-| `redis` | `application-redis.yml` | Redis(Lettuce) 연결 |
-| `h2` | `application-h2.yml` | 인메모리 H2 (로컬/테스트용); `ddl-auto: ${JPA_DDL_AUTO:create}` |
-| `google` | `application-google.yml` | Google OAuth2 (선택) |
-| `dev` | `application-dev.properties` | 로컬 개발용 환경변수 |
-| `prod` | `application-prod.properties` | 운영 환경변수 |
+For local development without MySQL/Redis, activate `h2` and disable `mysql`.
 
-MySQL/Redis 없이 로컬 개발 시 `h2` 프로파일 활성화, `mysql` 제거.
+## Required environment variables
 
-> `JPA_DDL_AUTO` 환경변수는 `h2` 프로파일에서만 사용됨. `mysql` 프로파일은 항상 `ddl-auto: none` — 스키마 변경은 Flyway가 단독 관리.
+Loaded from `src/main/resources/application-dev.properties` when the `dev` profile is active:
 
-## 필수 환경변수
-
-`application-dev.properties` (개발) 또는 `application-prod.properties` (운영)에 정의:
-
-| 변수 | 용도 |
+| Variable | Purpose |
 |---|---|
-| `JWT_APP_KEY` | JWT 서명용 HMAC 시크릿 키 |
-| `JWT_EXPIRATION` | 액세스 토큰 유효시간(ms, 기본 900000) |
-| `JWT_REFRESH_EXPIRATION` | 리프레시 토큰 유효시간(ms, 기본 604800000) |
-| `REDIS_HOST` / `REDIS_PORT` / `REDIS_PASSWORD` | Redis 연결 |
-| `MYSQL_HOST` / `MYSQL_PORT` / `MYSQL_DATABASE` / `MYSQL_USERNAME` / `MYSQL_PASSWORD` | MySQL 연결 |
-| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth2 (선택) |
-| `AI_MODEL_URL` / `AI_MODEL_ENDPOINT` | 외부 AI 모델 서비스 |
-| `AI_JOB_QUEUE_KEY` / `AI_JOB_QUEUE_PREFIX` / `AI_JOB_QUEUE_TTL` / `AI_JOB_WORKER_DELAY` | 비동기 작업 큐 설정 |
+| `JWT_APP_KEY` | HMAC secret key for JWT signing |
+| `JWT_EXPIRATION` | Access token TTL (ms, default 900000) |
+| `JWT_REFRESH_EXPIRATION` | Refresh token TTL (ms, default 604800000) |
+| `REDIS_HOST` / `REDIS_PORT` / `REDIS_PASSWORD` | Redis connection |
+| `MYSQL_HOST` / `MYSQL_PORT` / `MYSQL_DATABASE` / `MYSQL_USERNAME` / `MYSQL_PASSWORD` | MySQL connection |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google OAuth2 (optional — see Security section) |
+| `AI_MODEL_URL` / `AI_MODEL_ENDPOINT` | External AI model service |
+| `AI_JOB_QUEUE_KEY` / `AI_JOB_QUEUE_PREFIX` / `AI_JOB_QUEUE_TTL` / `AI_JOB_WORKER_DELAY` | Async job queue config |
 
-## 아키텍처 개요
+## Architecture overview
 
-### 패키지 구조
+### Package structure
 
-루트 패키지: `io.mite88.mite88shop`. 도메인 패키지는 `entity / dto / mapper / repository / service / controller` 레이어 구조를 따름.
+Root package: `io.mite88.mite88shop`. Domain packages follow a `entity / dto / mapper / repository / service / controller` layer layout:
 
-각 도메인 상세 문서는 `docs/` 폴더 참조.
+- `product` — product catalog (ADMIN-only write; public read)
+- `cart` — per-member shopping cart (lazy-created on first access)
+- `order` — order placement and cancellation
+- `posts` — blog posts (member-owned; public read)
+- `members` — authentication, JWT, OAuth2, member CRUD
+- `view` — Thymeleaf server-rendered pages (`ViewController`)
+- `mite88shop.global` — shared concerns: `CommonResponse`, `ResponseCode`, `BusinessException`, `GlobalExceptionHandler`, AI job queue
 
-- `product` — 상품 카탈로그 (쓰기: ADMIN 전용, 읽기: 공개)
-- `cart` — 회원별 장바구니 (첫 접근 시 자동 생성)
-- `order` — 주문 생성 및 취소
-- `posts` — 블로그 게시글 (쓰기: 작성자 본인, 읽기: 공개)
-- `members` — 인증, JWT, OAuth2, 회원 CRUD
-- `view` — Thymeleaf 서버 렌더링 페이지 (`ViewController`)
-- `global` — 공통 관심사: `CommonResponse`, `ResponseCode`, `BusinessException`, `GlobalExceptionHandler`, AI 작업 큐, Redis 설정
+> Note: the global package has a redundant nesting — the path is `io.mite88.mite88shop.mite88shop.global`.
 
-### 인증 흐름
+### Authentication flow
 
-JWT + 선택적 세션 (`SessionCreationPolicy.IF_REQUIRED`):
+JWT + optional session (`SessionCreationPolicy.IF_REQUIRED`):
 
-1. `TokenAuthenticationFilter`가 모든 요청을 가로채 `Authorization: Bearer <token>`을 `JwtTokenProvider`(jjwt HMAC)로 검증.
-2. 폼 로그인 성공 시 `AuthenticationSuccessHandlerImpl`이 액세스·리프레시 토큰 발급.
-3. 리프레시 토큰은 `RefreshTokenService`를 통해 Redis에 저장(`StringRedisTemplate` 사용). 갱신: `POST /api/v1/auth/refresh`.
-4. Google OAuth2는 `ClientRegistrationRepository` 빈이 존재할 때만 `SecurityConfig`에 조건부 등록. 흐름: `OAuth2SuccessHandler` → `GoogleOAuth2MemberService`.
-5. `AuthenticationEntryPointImpl`은 401 시 리다이렉트 대신 `CommonResponse` JSON 반환.
+1. `TokenAuthenticationFilter` intercepts every request and validates `Authorization: Bearer <token>` via `JwtTokenProvider` (jjwt HMAC).
+2. On form-login success, `AuthenticationSuccessHandlerImpl` issues access + refresh tokens.
+3. Refresh tokens are stored in Redis via `RefreshTokenService` (uses `StringRedisTemplate`). Token renewal: `POST /api/v1/auth/refresh`.
+4. Google OAuth2 is conditionally registered in `SecurityConfig` only when a `ClientRegistrationRepository` bean is present. Flow: `OAuth2SuccessHandler` → `GoogleOAuth2MemberService`.
+5. `AuthenticationEntryPointImpl` returns a `CommonResponse` JSON on 401 instead of redirecting.
 
-### URL 접근 권한 (SecurityConfig)
+### Order flow (cart → order)
 
-- 공개: `/`, `/login`, `/signup`, Swagger(`/swagger-ui/**`, `/v3/api-docs/**`), OAuth2 리다이렉트
-- 공개 GET: `/posts/**`, `/products/**`, `/api/products/**`
-- 인증 필요: `/api/cart/**`, `/api/orders/**`, `/api/v1/auth/logout`
-- ADMIN 전용: `POST/PATCH/DELETE /api/products/**`
-- 나머지 요청은 기본 `permitAll()`
+`OrderService.placeOrder()` is a single `@Transactional` operation that:
+1. Loads the authenticated member's `Cart`.
+2. Validates stock for each `CartItem` and calls `product.decreaseStock()`.
+3. Creates an `Order` with `OrderItem` entries derived from cart contents.
+4. Clears `cart.getCartItems()` (cascade removes items via orphanRemoval).
 
-### Redis 빈 구분 (RedisConfig)
+Order cancellation is only allowed when status is `ORDERED`; `CANCELLED` orders cannot be re-cancelled.
 
-세 가지 빈이 존재하며 혼용 시 직렬화 오류 발생:
+### AI job queue
 
-| 빈 이름 | 타입 | 사용처 |
-|---|---|---|
-| `redisTemplate` | `RedisTemplate<String, AiJob>` | `JobService` — AiJob 객체를 Jackson JSON으로 저장 |
-| `queueRedisTemplate` | `RedisTemplate<String, String>` | `JobService` — 작업 큐에 jobId push/pop |
-| `stringRedisTemplate` | `StringRedisTemplate` | `RefreshTokenService` — 리프레시 토큰 문자열 저장 |
+Redis-backed async fire-and-forget:
 
-### 응답 규약
+1. `POST /api/ai/jobs` → `JobService.submitJob()` stores an `AiJob` in Redis (`AI_JOB_QUEUE_PREFIX + jobId`) and pushes the job ID to a Redis list (`AI_JOB_QUEUE_KEY`).
+2. `AiJobWorker` polls the queue with a fixed `@Scheduled` delay, calls `AiModelClient.callModel()` via WebFlux `WebClient`, and updates job state (`PENDING → PROCESSING → DONE/FAILED`).
+3. `GET /api/ai/jobs/{jobId}` for client polling.
+4. `RedisConfig` defines two `RedisTemplate` beans: one serializes `AiJob` objects as Jackson JSON, the other handles plain `String` queue entries. Using the wrong template causes serialization errors.
+5. All state transitions are logged to MySQL (`ai_job_log` table) via `AiJobLogRepository`.
 
-모든 API 응답은 `CommonResponse<T>`로 래핑하며 `ResponseCode` enum(HTTP 상태 + 코드 문자열 + 한국어 메시지)을 사용.
+### Response convention
 
-도메인 오류 발생 시: `BusinessException(ResponseCode.XXX)` throw → `GlobalExceptionHandler`가 응답 직렬화.
+All API responses are wrapped in `CommonResponse<T>` using `ResponseCode` enum (HTTP status + code string + Korean message). Throw `BusinessException(ResponseCode.XXX)` for domain errors — `GlobalExceptionHandler` and `PostsExceptionHandler` catch them and serialize to the response envelope.
 
-**예외**: `posts` 도메인은 레거시 `PostsExceptionHandler`가 `UnAuthorizedUpdateException`을 `String` 원문으로 반환 (`CommonResponse` 미사용). 신규 도메인은 반드시 `BusinessException` + `GlobalExceptionHandler` 패턴 사용.
+### Database migrations
 
-### 데이터베이스 마이그레이션
+Flyway manages schema under `src/main/resources/db/migration/`:
+- `V1` — `ai_job_log`
+- `V2` — `member`
+- `V3` — `posts`
+- `V4` — member unique constraints
+- `V5` — `product`
+- `V6` — `cart`, `cart_item`
+- `V7` — `orders`, `order_item`
+- `V8` — sample product data
 
-Flyway가 `src/main/resources/db/migration/`의 스크립트로 스키마 관리. 스키마 변경 시 다음 번호의 `V{n}__설명.sql` 파일 추가 (기존 파일 수정 절대 금지).
+### Testing conventions
 
-현재 마이그레이션: V1 `ai_job_log`, V2 `member`, V3 `posts`, V4 회원 유니크 제약, V5 `product`, V6 `cart`/`cart_item`, V7 `orders`/`order_item`, V8 샘플 상품 데이터.
+Service tests use `@ExtendWith(MockitoExtension.class)` (pure Mockito, no Spring context). Because JPA entities use `@GeneratedValue` IDs with no-args protected constructors, tests use `ReflectionTestUtils.setField(entity, "id", value)` to inject IDs after construction.
 
-### 테스트 규약
+Controller tests (`PostApiControllerTest`, etc.) use `@WebMvcTest` with `spring-security-test`.
 
-- 서비스 테스트: `@ExtendWith(MockitoExtension.class)` — 순수 Mockito, Spring 컨텍스트 없음.
-- 엔티티 ID 주입: `@GeneratedValue` + protected 생성자 구조로 인해 `ReflectionTestUtils.setField(entity, "id", value)` 사용.
-- 컨트롤러 테스트: `@WebMvcTest` + `spring-security-test`.
+### API documentation
 
-### API 문서
-
-Swagger UI: `/swagger-ui/index.html` (인증 불필요). 엔드포인트 어노테이션은 `*ApiDocs` 인터페이스(`ProductApiDocs`, `PostApiDocs` 등)에 정의하고 컨트롤러가 구현.
+Swagger UI at `/swagger-ui/index.html` (no auth required). Endpoint annotations are defined on `*ApiDocs` interfaces (e.g. `ProductApiDocs`, `PostApiDocs`) and implemented by the corresponding controllers.

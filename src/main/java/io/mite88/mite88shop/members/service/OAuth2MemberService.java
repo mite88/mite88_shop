@@ -19,9 +19,6 @@ public class OAuth2MemberService extends DefaultOAuth2UserService {
 
     private final MemberJpaRepository repository;
 
-    /**
-     * OAuth2 로그인 처리 - providerId로 기존 회원 조회, 없으면 자동 가입 후 MemberDetails 반환
-     */
     @Override
     @Transactional
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -32,7 +29,6 @@ public class OAuth2MemberService extends DefaultOAuth2UserService {
         String email = attributes.get("email").toString();
         String name = attributes.getOrDefault("name", email).toString();
 
-        //providerId로 회원 조회, 없으면 신규 가입
         Member member = repository.findByProviderId(providerId)
                 .orElseGet(() -> repository.save(
                         Member.builder()
@@ -42,7 +38,6 @@ public class OAuth2MemberService extends DefaultOAuth2UserService {
                                 .build()
                 ));
 
-        //MemberDetails는 UserDetails와 OAuth2User를 모두 구현
         return (OAuth2User) MemberMapper.toDetails(member);
     }
 

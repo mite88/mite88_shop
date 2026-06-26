@@ -24,9 +24,6 @@ public class JwtTokenProvider {
         this.appKey = appKey;
     }
 
-    /**
-     * JWT 액세스 토큰 발급 - 만료 시간과 클레임 설정 후 서명
-     */
     public String issue(long validateTime, Map<String, Object> claims) {
 
         JwtBuilder jwtBuilder = Jwts.builder()
@@ -40,16 +37,10 @@ public class JwtTokenProvider {
 
     }
 
-    /**
-     * 리프레시 토큰 발급 - type 클레임으로 refresh 토큰임을 구분
-     */
     public String issueRefreshToken(long validateTime, String username) {
         return issue(validateTime, Map.of("username", username, "type", "refresh"));
     }
 
-    /**
-     * 토큰 유효성 검사 - 파싱 성공 여부로 판단
-     */
     public boolean validate(String token) {
 
         try {
@@ -66,9 +57,6 @@ public class JwtTokenProvider {
         return false;
     }
 
-    /**
-     * 토큰 페이로드(클레임) 추출
-     */
     public Map<String, Object> getClaims(String token) {
 
         JwtParser parser = Jwts.parser()
@@ -80,9 +68,6 @@ public class JwtTokenProvider {
 
     }
 
-    /**
-     * HMAC-SHA 서명 키 생성
-     */
     private @NonNull SecretKey getSecretKey() {
         return Keys.hmacShaKeyFor(appKey.getBytes());
     }

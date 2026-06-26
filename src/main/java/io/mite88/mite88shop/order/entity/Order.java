@@ -31,9 +31,6 @@ public class Order {
     private int totalPrice;
     private LocalDateTime createdAt;
 
-    /**
-     * 회원 전용 주문 생성 - 초기 상태는 ORDERED
-     */
     public static Order createFor(Member member) {
         Order order = new Order();
         order.member = member;
@@ -42,17 +39,11 @@ public class Order {
         return order;
     }
 
-    /**
-     * 주문 항목 추가 - 추가 시 총액에 소계 반영
-     */
     public void addItem(OrderItem item) {
         orderItems.add(item);
         totalPrice += item.getPrice() * item.getQuantity();
     }
 
-    /**
-     * 주문 취소 처리
-     */
     public void cancel() {
         this.status = OrderStatus.CANCELLED;
     }
