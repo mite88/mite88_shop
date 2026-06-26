@@ -94,6 +94,10 @@ public class OrderService {
         if (order.getStatus() != OrderStatus.ORDERED) {
             throw new BusinessException(ResponseCode.ORDER_CANCEL_NOT_ALLOWED);
         }
+        //취소 전 각 주문 항목의 재고 복구
+        for (var item : order.getOrderItems()) {
+            item.getProduct().increaseStock(item.getQuantity());
+        }
         order.cancel();
         return OrderMapper.toDescription(order);
     }

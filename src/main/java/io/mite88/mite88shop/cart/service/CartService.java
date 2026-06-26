@@ -49,10 +49,23 @@ public class CartService {
 
         cartItemRepository.findByCartAndProduct(cart, product)
                 .ifPresentOrElse(
-                        //동일 상품이면 수량 추가
-                        existing -> existing.updateQuantity(existing.getQuantity() + request.quantity()),
-                        //신규 상품이면 새 항목 저장
-                        () -> cartItemRepository.save(CartItem.of(cart, product, request.quantity()))
+                        existing -> {
+                            // 이미 재고 한도까지 담겨 있으면 추가 불가
+                            if (existing.getQuantity() >= product.getStock()) {
+                                throw new BusinessException(ResponseCode.OUT_OF_STOCK);
+                            }
+                            // 재고 한도를 초과하는 요청은 한도까지만 채움
+                            int newQuantity = Math.min(existing.getQuantity() + request.quantity(), product.getStock());
+                            existing.updateQuantity(newQuantity);
+                        },
+                        () -> {
+                            if (product.getStock() == 0) {
+                                throw new BusinessException(ResponseCode.OUT_OF_STOCK);
+                            }
+                            // 재고보다 많은 수량 요청은 재고 수량으로 제한
+                            int quantity = Math.min(request.quantity(), product.getStock());
+                            cartItemRepository.save(CartItem.of(cart, product, quantity));
+                        }
                 );
 
         return CartMapper.toDescription(cartRepository.findByMember(member).orElseThrow());
@@ -65,6 +78,9 @@ public class CartService {
     public CartDescription updateItem(String username, Long cartItemId, int quantity) {
         CartItem item = getCartItemOrThrow(cartItemId);
         validateOwner(username, item);
+        if (quantity > item.getProduct().getStock()) {
+            throw new BusinessException(ResponseCode.OUT_OF_STOCK);
+        }
         item.updateQuantity(quantity);
         return CartMapper.toDescription(item.getCart());
     }

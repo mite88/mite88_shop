@@ -11,7 +11,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update # Flyway가 스키마를 관리하므로 none으로 설정
+      ddl-auto: none
     database-platform: org.hibernate.dialect.MySQLDialect
     properties:
       hibernate:
