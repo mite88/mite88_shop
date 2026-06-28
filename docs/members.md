@@ -38,8 +38,9 @@
 1. `POST /api/v1/auth/login` → `AuthService.login()`
 2. `MemberService.loadUserByUsername()`으로 회원 조회
 3. `PasswordEncoder.matches()`로 비밀번호 검증
-4. `JwtTokenProvider`로 액세스·리프레시 토큰 발급
-5. 리프레시 토큰을 Redis에 `username` 키로 저장
+4. `UUID` 기반 세션 ID(`sid`) 생성
+5. `JwtTokenProvider`로 `sid`가 포함된 액세스·리프레시 토큰 발급
+6. Redis에 리프레시 토큰(`refresh:{username}`)과 활성 세션 ID(`session:{username}`) 저장
 
 ### 폼 로그인 (Spring Security 기본)
 - `AuthenticationSuccessHandlerImpl`이 로그인 성공 후 토큰 발급 및 JSON 응답
@@ -47,12 +48,63 @@
 ### 토큰 갱신
 1. `POST /api/v1/auth/refresh` → `AuthService.refresh()`
 2. 리프레시 토큰 서명 검증 → Redis 저장값과 일치 여부 확인 (탈취 감지)
-3. 일치하면 새 토큰 쌍 발급
+3. 일치하면 새 토큰 쌍 발급 (새 `sid` 포함)
 
 ### Google OAuth2
 - `google` 프로파일 활성화 시에만 OAuth2 로그인 등록 (빈 조건부 등록)
 - 신규 Google 계정: `GoogleOAuth2MemberService`가 자동으로 회원 생성
 - 성공 후 `OAuth2SuccessHandler`에서 JWT 토큰 발급
+
+## 중복 로그인 방지 (단일 세션)
+
+로그인할 때마다 새 UUID `sid`(세션 ID)를 발급하고 Redis에 최신 값만 유지한다. 이전 기기에서 발급된 토큰은 `sid` 불일치로 인증이 거부된다.
+
+### 동작 방식
+
+```
+로그인 A기기 → sid=aaa, Redis: session:user = aaa
+로그인 B기기 → sid=bbb, Redis: session:user = bbb  (aaa 덮어씀)
+A기기 요청    → sid=aaa ≠ Redis(bbb) → 인증 거부 (401)
+```
+
+### Redis 키 구조
+
+| 키 | 값 | TTL |
+|---|---|---|
+| `refresh:{username}` | 리프레시 토큰 문자열 | `JWT_REFRESH_EXPIRATION` |
+| `session:{username}` | 활성 세션 UUID(`sid`) | `JWT_REFRESH_EXPIRATION` |
+
+### 관련 코드
+- `AuthService.issueTokens()` — `sid` 생성 및 토큰 클레임에 포함
+- `RefreshTokenService.save()` — 리프레시 토큰 + 세션 ID Redis 저장
+- `RefreshTokenService.getActiveSessionId()` — 활성 세션 ID 조회
+- `TokenAuthenticationFilter.doFilterInternal()` — `sid` 일치 여부 검증 후 SecurityContext 등록
+
+## 세션 타임아웃 (프론트엔드)
+
+서버 토큰 만료와는 별개로, 프론트엔드(`auth.js`)에서 **비활동 기반 자동 로그아웃**을 추가로 처리한다.
+
+### 타임아웃 규칙
+
+| 항목 | 값 |
+|---|---|
+| 비활동 자동 로그아웃 | 1시간 |
+| 경고 모달 표시 기준 | 잔여 10분 이하 |
+| 활동 감지 이벤트 | `mousedown`, `keydown`, `scroll`, `touchstart` |
+| 활동 감지 쓰로틀 | 10초 |
+
+### 동작 흐름
+
+1. 로그인 성공 시 `SessionManager.init()` 호출, `localStorage.sessionExpiryTime` 설정 (현재 시각 + 1시간)
+2. 1초마다 인터벌이 잔여 시간 체크
+3. **잔여 10분 초과**: 사용자 활동 감지 시 자동으로 만료 시간 갱신
+4. **잔여 10분 이하**: 경고 모달 표시, 자동 갱신 중단 → 사용자가 직접 "로그인 연장" 클릭해야 함
+5. **잔여 0분**: 자동 로그아웃 처리 (`Auth.logout()` 호출)
+6. "로그인 연장" 클릭 시 `SessionManager.extendSession()` → `Auth.refresh()` 호출로 서버 토큰도 함께 갱신
+
+### 관련 코드
+- `auth.js` — `SessionManager` 객체 (타임아웃 로직 전체)
+- `layout/default.html` — 네비바 세션 타이머 UI, 세션 경고 모달 (`#session-warning-modal`)
 
 ## 회원 역할 (Role)
 

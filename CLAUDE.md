@@ -78,10 +78,15 @@ MySQL/Redis 없이 로컬 개발 시 `h2` 프로파일 활성화, `mysql` 제거
 JWT + 선택적 세션 (`SessionCreationPolicy.IF_REQUIRED`):
 
 1. `TokenAuthenticationFilter`가 모든 요청을 가로채 `Authorization: Bearer <token>`을 `JwtTokenProvider`(jjwt HMAC)로 검증.
-2. 폼 로그인 성공 시 `AuthenticationSuccessHandlerImpl`이 액세스·리프레시 토큰 발급.
-3. 리프레시 토큰은 `RefreshTokenService`를 통해 Redis에 저장(`StringRedisTemplate` 사용). 갱신: `POST /api/v1/auth/refresh`.
-4. Google OAuth2는 `ClientRegistrationRepository` 빈이 존재할 때만 `SecurityConfig`에 조건부 등록. 흐름: `OAuth2SuccessHandler` → `GoogleOAuth2MemberService`.
-5. `AuthenticationEntryPointImpl`은 401 시 리다이렉트 대신 `CommonResponse` JSON 반환.
+2. 토큰의 `sid` 클레임을 Redis `session:{username}` 값과 비교 — 불일치 시 인증 거부 (중복 로그인 방지).
+3. 폼 로그인 성공 시 `AuthenticationSuccessHandlerImpl`이 액세스·리프레시 토큰 발급 (UUID `sid` 포함).
+4. 리프레시 토큰은 `RefreshTokenService`를 통해 Redis에 저장(`StringRedisTemplate` 사용). 갱신: `POST /api/v1/auth/refresh`.
+5. Google OAuth2는 `ClientRegistrationRepository` 빈이 존재할 때만 `SecurityConfig`에 조건부 등록. 흐름: `OAuth2SuccessHandler` → `GoogleOAuth2MemberService`.
+6. `AuthenticationEntryPointImpl`은 401 시 리다이렉트 대신 `CommonResponse` JSON 반환.
+
+**중복 로그인 방지**: 새 로그인 시 기존 세션 ID를 덮어쓰므로 이전 기기의 토큰은 자동 무효화된다.
+
+**프론트엔드 세션 타임아웃**: `SessionManager`(auth.js)가 비활동 1시간 후 자동 로그아웃, 잔여 10분 이하 시 연장 여부 모달 표시. 세션 만료 시각은 `localStorage.sessionExpiryTime`에 저장. 자세한 내용은 `docs/members.md` 참조.
 
 ### URL 접근 권한 (SecurityConfig)
 

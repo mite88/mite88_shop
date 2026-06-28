@@ -43,8 +43,8 @@ public class JwtTokenProvider {
     /**
      * 리프레시 토큰 발급 - type 클레임으로 refresh 토큰임을 구분
      */
-    public String issueRefreshToken(long validateTime, String username) {
-        return issue(validateTime, Map.of("username", username, "type", "refresh"));
+    public String issueRefreshToken(long validateTime, String username, String sessionId) {
+        return issue(validateTime, Map.of("username", username, "type", "refresh", "sid", sessionId));
     }
 
     /**
