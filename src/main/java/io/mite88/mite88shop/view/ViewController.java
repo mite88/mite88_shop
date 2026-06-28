@@ -46,7 +46,7 @@ public class ViewController {
      */
     @GetMapping("/qa")
     public String qa() {
-        return "posts/index";
+        return "qna/index";
     }
 
     /**
@@ -55,7 +55,7 @@ public class ViewController {
     @GetMapping("/qa/{id}")
     public String qaDetail(@PathVariable Long id, Model model) {
         model.addAttribute("postId", id);
-        return "posts/detail";
+        return "qna/detail";
     }
 
     /**

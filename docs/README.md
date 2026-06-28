@@ -9,5 +9,5 @@
 | [product.md](./product.md) | 상품 카탈로그 CRUD, 재고 관리 |
 | [cart.md](./cart.md) | 장바구니 담기·수량 수정·삭제 |
 | [order.md](./order.md) | 주문 생성·조회·취소 |
-| [posts.md](./posts.md) | 블로그 게시글 CRUD |
+| [qna.md](./qna.md) | Q&A 문의게시판 CRUD (`/qna`) |
 | [global.md](./global.md) | 공통 응답, 에러 코드, AI 작업 큐, 예외 처리 |

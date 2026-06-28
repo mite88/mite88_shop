@@ -1,6 +1,7 @@
 package io.mite88.mite88shop.posts.entity;
 
 import io.mite88.mite88shop.members.entity.Member;
+import io.mite88.mite88shop.posts.entity.Qna;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,7 +20,7 @@ public class Comment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
-    private Posts post;
+    private Qna post;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)

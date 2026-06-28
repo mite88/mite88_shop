@@ -8,9 +8,9 @@ import io.mite88.mite88shop.members.service.MemberService;
 import io.mite88.mite88shop.posts.dto.CommentCreateRequest;
 import io.mite88.mite88shop.posts.dto.CommentDescription;
 import io.mite88.mite88shop.posts.entity.Comment;
-import io.mite88.mite88shop.posts.entity.Posts;
+import io.mite88.mite88shop.posts.entity.Qna;
 import io.mite88.mite88shop.posts.repository.CommentRepository;
-import io.mite88.mite88shop.posts.repository.PostJpaRepository;
+import io.mite88.mite88shop.posts.repository.QnaRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,12 +22,12 @@ import java.util.List;
 public class CommentService {
 
     private final CommentRepository commentRepository;
-    private final PostJpaRepository postRepository;
+    private final QnaRepository qnaRepository;
     private final MemberService memberService;
 
     @Transactional
     public CommentDescription save(Long postId, CommentCreateRequest request, String username) {
-        Posts post = postRepository.findById(postId)
+        Qna post = qnaRepository.findById(postId)
                 .orElseThrow(() -> new BusinessException(ResponseCode.POST_NOT_FOUND));
         Member member = memberService.findByUsername(username);
 
