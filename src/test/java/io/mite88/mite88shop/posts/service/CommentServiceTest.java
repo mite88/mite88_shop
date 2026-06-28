@@ -8,9 +8,9 @@ import io.mite88.mite88shop.members.service.MemberService;
 import io.mite88.mite88shop.posts.dto.CommentCreateRequest;
 import io.mite88.mite88shop.posts.dto.CommentDescription;
 import io.mite88.mite88shop.posts.entity.Comment;
-import io.mite88.mite88shop.posts.entity.Posts;
+import io.mite88.mite88shop.posts.entity.Qna;
 import io.mite88.mite88shop.posts.repository.CommentRepository;
-import io.mite88.mite88shop.posts.repository.PostJpaRepository;
+import io.mite88.mite88shop.posts.repository.QnaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,13 +41,13 @@ class CommentServiceTest {
     private CommentRepository commentRepository;
 
     @Mock
-    private PostJpaRepository postRepository;
+    private QnaRepository qnaRepository;
 
     @Mock
     private MemberService memberService;
 
     private Member adminMember;
-    private Posts testPost;
+    private Qna testPost;
     private Comment testComment;
 
     @BeforeEach
@@ -60,7 +60,7 @@ class CommentServiceTest {
                 .build();
         ReflectionTestUtils.setField(adminMember, "id", 1L);
 
-        testPost = Posts.builder()
+        testPost = Qna.builder()
                 .title("문의 제목")
                 .content("문의 내용")
                 .author(adminMember)
@@ -83,7 +83,7 @@ class CommentServiceTest {
     void save_Success() {
         CommentCreateRequest request = new CommentCreateRequest("답변 내용");
 
-        when(postRepository.findById(1L)).thenReturn(Optional.of(testPost));
+        when(qnaRepository.findById(1L)).thenReturn(Optional.of(testPost));
         when(memberService.findByUsername("admin")).thenReturn(adminMember);
         when(commentRepository.save(any(Comment.class))).thenReturn(testComment);
 
@@ -94,7 +94,7 @@ class CommentServiceTest {
         assertThat(result.authorName()).isEqualTo("admin");
         assertThat(result.isAdminAuthor()).isTrue();
 
-        verify(postRepository, times(1)).findById(1L);
+        verify(qnaRepository, times(1)).findById(1L);
         verify(memberService, times(1)).findByUsername("admin");
         verify(commentRepository, times(1)).save(any(Comment.class));
     }
@@ -104,7 +104,7 @@ class CommentServiceTest {
     void save_PostNotFound() {
         CommentCreateRequest request = new CommentCreateRequest("답변 내용");
 
-        when(postRepository.findById(99L)).thenReturn(Optional.empty());
+        when(qnaRepository.findById(99L)).thenReturn(Optional.empty());
 
         BusinessException ex = assertThrows(BusinessException.class,
                 () -> commentService.save(99L, request, "admin"));

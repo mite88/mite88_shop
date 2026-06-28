@@ -399,59 +399,68 @@
 
 ---
 
-## 게시글 (Posts)
+## Q&A 문의게시판 (QnA)
 
-기본 경로: `/posts`
+기본 경로: `/qna`
+
+모든 쓰기(작성·수정·삭제·답변) 는 **ADMIN 전용**, 조회는 공개.
 
 ---
 
-### 게시글 목록 조회
+### 문의 목록 조회 (페이징)
 
-`GET /posts`
+`GET /qna?page=0`
 
 **인증**: 불필요
 
+**쿼리 파라미터**: `page` (0-indexed, 기본값 0) — 10개씩 최신순
+
 **응답 200**
 ```json
-[
-  {
-    "id": 1,
-    "title": "게시글 제목",
-    "content": "게시글 내용",
-    "authorName": "user01",
-    "createdAt": "2026-06-26T12:00:00"
-  }
-]
+{
+  "content": [
+    {
+      "id": 1,
+      "title": "문의 제목",
+      "content": "문의 내용",
+      "authorName": "admin",
+      "createdAt": "2026-06-26T12:00:00"
+    }
+  ],
+  "totalPages": 3,
+  "totalElements": 25,
+  "number": 0
+}
 ```
 
 ---
 
-### 게시글 단건 조회
+### 문의 단건 조회
 
-`GET /posts/{id}`
+`GET /qna/{id}`
 
 **인증**: 불필요
 
-**응답 200**: 목록 배열의 단건 형식과 동일
+**응답 200**: `PostDescription` 단건
 
 **에러**
 | 코드 | 상황 |
 |---|---|
-| `P002` 404 | 존재하지 않는 게시글 |
+| `P002` 404 | 존재하지 않는 문의 |
 
 ---
 
-### 게시글 작성
+### 문의 작성
 
-`POST /posts`
+`POST /qna`
 
-**인증**: 필요
+**인증**: ADMIN
 
 **요청 Body**
 ```json
 {
-  "title": "string (10~100자)",
-  "content": "string (1~250자)"
+  "title": "string",
+  "content": "string"
 }
 ```
 
@@ -459,11 +468,11 @@
 
 ---
 
-### 게시글 수정
+### 문의 수정
 
-`PATCH /posts/{id}`
+`PATCH /qna/{id}`
 
-**인증**: 필요 (작성자 본인만)
+**인증**: ADMIN
 
 **요청 Body**: 작성과 동일
 
@@ -472,16 +481,63 @@
 **에러**
 | 코드 | 상황 |
 |---|---|
-| `P002` 404 | 존재하지 않는 게시글 |
+| `P002` 404 | 존재하지 않는 문의 |
 | `P001` 403 | 본인 글이 아님 |
 
 ---
 
-### 게시글 삭제
+### 문의 삭제
 
-`DELETE /posts/{id}`
+`DELETE /qna/{id}`
 
-**인증**: 필요
+**인증**: ADMIN
+
+**응답**: `204 No Content`
+
+---
+
+### 답변 목록 조회
+
+`GET /qna/{id}/comments`
+
+**인증**: 불필요
+
+**응답 200**
+```json
+[
+  {
+    "id": 1,
+    "postId": 1,
+    "content": "답변 내용",
+    "authorName": "admin",
+    "createdAt": "2026-06-26T12:00:00",
+    "isAdminAuthor": true
+  }
+]
+```
+
+---
+
+### 답변 등록
+
+`POST /qna/{id}/comments`
+
+**인증**: ADMIN
+
+**요청 Body**
+```json
+{ "content": "string" }
+```
+
+**응답 201**: `CommentDescription`
+
+---
+
+### 답변 삭제
+
+`DELETE /qna/{id}/comments/{commentId}`
+
+**인증**: ADMIN
 
 **응답**: `204 No Content`
 

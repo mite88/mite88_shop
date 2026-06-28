@@ -1,7 +1,7 @@
 package io.mite88.mite88shop.posts.entity;
 
 import io.mite88.mite88shop.members.entity.Member;
-import io.mite88.mite88shop.posts.dto.EditPostRequest;
+import io.mite88.mite88shop.posts.dto.EditQnaRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,10 +9,11 @@ import java.time.LocalDateTime;
 
 @Getter
 @Entity
+@Table(name = "posts")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @AllArgsConstructor
-public class Posts {
+public class Qna {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,22 +33,9 @@ public class Posts {
     @Builder.Default
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-    @Builder
-    public Posts(String title, String content) {
-        this.title = title;
-        this.content = content;
-    }
-
-    /**
-     * 게시글 내용 수정
-     */
-    public void update(EditPostRequest request) {
-
+    public void update(EditQnaRequest request) {
         this.title = request.title();
         this.content = request.content();
-
         this.updatedAt = LocalDateTime.now();
-
     }
-
 }

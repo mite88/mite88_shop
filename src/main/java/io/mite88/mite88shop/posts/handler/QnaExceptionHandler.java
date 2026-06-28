@@ -6,20 +6,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-
 @RestControllerAdvice
-public class PostsExceptionHandler {
+public class QnaExceptionHandler {
 
-    /**
-     * 게시글 수정 권한 없음 - 403 응답
-     */
     @ExceptionHandler(UnAuthorizedUpdateException.class)
-    public ResponseEntity<String> handleUnAuthorizedUpdateException(
-            UnAuthorizedUpdateException exception
-    ) {
-        return ResponseEntity.status(
-                HttpStatus.FORBIDDEN
-        ).body(exception.getMessage());
+    public ResponseEntity<String> handleUnAuthorizedUpdateException(UnAuthorizedUpdateException exception) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(exception.getMessage());
     }
-
 }
