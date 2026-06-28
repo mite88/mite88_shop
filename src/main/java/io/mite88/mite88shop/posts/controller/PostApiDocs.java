@@ -2,8 +2,8 @@ package io.mite88.mite88shop.posts.controller;
 
 import io.mite88.mite88shop.posts.dto.EditPostRequest;
 import io.mite88.mite88shop.posts.dto.PostDescription;
+import io.mite88.mite88shop.posts.dto.PostPageResponse;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -11,9 +11,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
-import java.util.List;
 
 public interface PostApiDocs {
 
@@ -55,18 +55,18 @@ public interface PostApiDocs {
     ResponseEntity<PostDescription> findById(@PathVariable Long id);
 
     @Operation(
-            summary = "게시글 전체 조회",
-            description = "등록된 모든 게시글 목록을 조회합니다."
+            summary = "문의 게시글 페이징 조회",
+            description = "page 파라미터(0-indexed)로 10개씩 최신순 조회합니다."
     )
     @ApiResponse(
             responseCode = "200",
-            description = "게시글 목록",
+            description = "페이징된 게시글 목록",
             content = @Content(
                     mediaType = "application/json",
-                    array = @ArraySchema(schema = @Schema(implementation = PostDescription.class))
+                    schema = @Schema(implementation = PostPageResponse.class)
             )
     )
-    ResponseEntity<List<PostDescription>> findAll();
+    ResponseEntity<PostPageResponse> findAll(@RequestParam(defaultValue = "0") int page);
 
     @Operation(
             summary = "게시글 수정",

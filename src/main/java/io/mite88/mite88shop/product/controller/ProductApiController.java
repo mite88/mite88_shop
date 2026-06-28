@@ -1,6 +1,7 @@
 package io.mite88.mite88shop.product.controller;
 
 import io.mite88.mite88shop.product.dto.ProductDescription;
+import io.mite88.mite88shop.product.dto.ProductPageResponse;
 import io.mite88.mite88shop.product.dto.ProductSaveRequest;
 import io.mite88.mite88shop.product.dto.ProductUpdateRequest;
 import io.mite88.mite88shop.product.service.ProductService;
@@ -46,6 +47,21 @@ public class ProductApiController implements ProductApiDocs {
         List<ProductDescription> result = (category != null && !category.isBlank())
                 ? productService.findByCategory(category)
                 : productService.findAll();
+        return ResponseEntity.ok(result);
+    }
+
+    /**
+     * 상품 목록 페이징 조회
+     */
+    @GetMapping("/paged")
+    public ResponseEntity<ProductPageResponse> findAllPaged(
+            @RequestParam(required = false) String category,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "8") int size
+    ) {
+        ProductPageResponse result = (category != null && !category.isBlank())
+                ? productService.findByCategoryPaged(category, page, size)
+                : productService.findAllPaged(page, size);
         return ResponseEntity.ok(result);
     }
 

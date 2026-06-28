@@ -68,8 +68,8 @@ MySQL/Redis 없이 로컬 개발 시 `h2` 프로파일 활성화, `mysql` 제거
 - `product` — 상품 카탈로그 (쓰기: ADMIN 전용, 읽기: 공개)
 - `cart` — 회원별 장바구니 (첫 접근 시 자동 생성)
 - `order` — 주문 생성 및 취소
-- `posts` — 블로그 게시글 (쓰기: 작성자 본인, 읽기: 공개)
-- `members` — 인증, JWT, OAuth2, 회원 CRUD
+- `posts` — Q&A 문의게시판 (문의 작성·수정·삭제·답변 모두 ADMIN 전용, 조회 공개). API 경로: `/qna`, `/qna/{id}`, `/qna/{id}/comments`. 목록은 10개 페이징(`GET /qna?page=0`). 답변(Comment)에 `isAdminAuthor` 플래그 포함.
+- `members` — 인증, JWT, OAuth2, 회원 CRUD. JWT 클레임 키: `username`, `role`, `sid`. `MemberDetails.getAuthorities()`는 `ROLE_` 접두사 포함(`ROLE_ADMIN`, `ROLE_MEMBER`).
 - `view` — Thymeleaf 서버 렌더링 페이지 (`ViewController`)
 - `global` — 공통 관심사: `CommonResponse`, `ResponseCode`, `BusinessException`, `GlobalExceptionHandler`, AI 작업 큐, Redis 설정
 
@@ -91,9 +91,9 @@ JWT + 선택적 세션 (`SessionCreationPolicy.IF_REQUIRED`):
 ### URL 접근 권한 (SecurityConfig)
 
 - 공개: `/`, `/login`, `/signup`, Swagger(`/swagger-ui/**`, `/v3/api-docs/**`), OAuth2 리다이렉트, Actuator(`/actuator/**` — Prometheus 스크레이핑 포함)
-- 공개 GET: `/posts/**`, `/products/**`, `/api/products/**`
+- 공개 GET: `GET /qna/**`, `GET /products/**`, `GET /api/products/**`
 - 인증 필요: `/api/cart/**`, `/api/orders/**`, `/api/v1/auth/logout`
-- ADMIN 전용: `POST/PATCH/DELETE /api/products/**`
+- ADMIN 전용: `POST/PATCH/DELETE /api/products/**`, `POST/PATCH/DELETE /qna/**`(문의 작성·수정·삭제·답변 모두)
 - 나머지 요청은 기본 `permitAll()`
 
 ### Redis 빈 구분 (RedisConfig)
@@ -112,13 +112,13 @@ JWT + 선택적 세션 (`SessionCreationPolicy.IF_REQUIRED`):
 
 도메인 오류 발생 시: `BusinessException(ResponseCode.XXX)` throw → `GlobalExceptionHandler`가 응답 직렬화.
 
-**예외**: `posts` 도메인은 레거시 `PostsExceptionHandler`가 `UnAuthorizedUpdateException`을 `String` 원문으로 반환 (`CommonResponse` 미사용). 신규 도메인은 반드시 `BusinessException` + `GlobalExceptionHandler` 패턴 사용.
+**예외**: `posts` 도메인에 레거시 `PostsExceptionHandler`와 `UnAuthorizedUpdateException`이 남아있으나 현재 사용되지 않음. 모든 오류는 `BusinessException` + `GlobalExceptionHandler` 패턴으로 처리.
 
 ### 데이터베이스 마이그레이션
 
 Flyway가 `src/main/resources/db/migration/`의 스크립트로 스키마 관리. 스키마 변경 시 다음 번호의 `V{n}__설명.sql` 파일 추가 (기존 파일 수정 절대 금지).
 
-현재 마이그레이션: V1 `ai_job_log`, V2 `member`, V3 `posts`, V4 회원 유니크 제약, V5 `product`, V6 `cart`/`cart_item`, V7 `orders`/`order_item`, V8 샘플 상품 데이터, V9 `cart.member_id` UNIQUE 제약, V10 `cart_item(cart_id, product_id)` UNIQUE 제약.
+현재 마이그레이션: V1 `ai_job_log`, V2 `member`, V3 `posts`, V4 회원 유니크 제약, V5 `product`, V6 `cart`/`cart_item`, V7 `orders`/`order_item`, V8 샘플 상품 데이터, V9 `cart.member_id` UNIQUE 제약, V10 `cart_item(cart_id, product_id)` UNIQUE 제약, V11 `comment` 테이블, V12 admin 계정 초기 데이터 (아이디: `admin`, 비밀번호: `admin1234`, role: `ADMIN`).
 
 ### 테스트 규약
 

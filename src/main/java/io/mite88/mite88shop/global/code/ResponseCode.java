@@ -38,6 +38,10 @@ public enum ResponseCode {
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "P002", "게시글을 찾을 수 없습니다."),
     UNAUTHORIZED_POST_UPDATE(HttpStatus.FORBIDDEN, "P001", "본인 글이 아니면 수정할 수 없습니다."),
 
+    // Comment
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "C002", "댓글을 찾을 수 없습니다."),
+    UNAUTHORIZED_COMMENT_DELETE(HttpStatus.FORBIDDEN, "C003", "본인 댓글만 삭제할 수 있습니다."),
+
     // Product
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "PR001", "상품을 찾을 수 없습니다."),
     OUT_OF_STOCK(HttpStatus.BAD_REQUEST, "PR002", "재고가 부족합니다."),

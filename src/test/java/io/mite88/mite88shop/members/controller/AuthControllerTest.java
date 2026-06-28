@@ -65,11 +65,17 @@ public class AuthControllerTest {
         memberRepository.deleteAll();
 
         tokenStore = new HashMap<>();
-        doAnswer(inv -> { tokenStore.put(inv.getArgument(0), inv.getArgument(1)); return null; })
-                .when(refreshTokenService).save(anyString(), anyString());
+        Map<String, String> sessionStore = new HashMap<>();
+        doAnswer(inv -> {
+            tokenStore.put(inv.getArgument(0), inv.getArgument(1));
+            sessionStore.put(inv.getArgument(0), inv.getArgument(2));
+            return null;
+        }).when(refreshTokenService).save(anyString(), anyString(), anyString());
         when(refreshTokenService.find(anyString())).thenAnswer(inv ->
                 Optional.ofNullable(tokenStore.get(inv.getArgument(0, String.class))));
-        doAnswer(inv -> { tokenStore.remove(inv.getArgument(0)); return null; })
+        when(refreshTokenService.getActiveSessionId(anyString())).thenAnswer(inv ->
+                Optional.ofNullable(sessionStore.get(inv.getArgument(0, String.class))));
+        doAnswer(inv -> { tokenStore.remove(inv.getArgument(0)); sessionStore.remove(inv.getArgument(0)); return null; })
                 .when(refreshTokenService).delete(anyString());
     }
 

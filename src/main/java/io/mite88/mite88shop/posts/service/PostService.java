@@ -6,14 +6,17 @@ import io.mite88.mite88shop.members.entity.Member;
 import io.mite88.mite88shop.members.service.MemberService;
 import io.mite88.mite88shop.posts.dto.EditPostRequest;
 import io.mite88.mite88shop.posts.dto.PostDescription;
+import io.mite88.mite88shop.posts.dto.PostPageResponse;
 import io.mite88.mite88shop.posts.entity.Posts;
 import io.mite88.mite88shop.posts.mapper.PostMapper;
 import io.mite88.mite88shop.posts.repository.PostJpaRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,21 +61,15 @@ public class PostService {
     }
 
     /**
-     * 전체 게시글 목록 조회
+     * 문의 게시글 페이징 조회 (page: 0-indexed, size: 10)
      */
-    public List<PostDescription> findAll() {
-
-        List<Posts> posts = repository.findAll();
-
-        List<PostDescription> postDescriptions = new ArrayList<>();
-
-        for ( Posts post : posts ) {
-            PostDescription description = PostMapper.toDescription(post);
-            postDescriptions.add(description);
-        }
-
-        return postDescriptions;
-
+    public PostPageResponse findAll(int page) {
+        PageRequest pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
+        Page<Posts> result = repository.findAll(pageable);
+        List<PostDescription> content = result.getContent().stream()
+                .map(PostMapper::toDescription)
+                .toList();
+        return new PostPageResponse(content, result.getTotalPages(), result.getTotalElements(), result.getNumber());
     }
 
     /**

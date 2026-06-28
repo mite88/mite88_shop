@@ -42,6 +42,23 @@ public class ViewController {
     }
 
     /**
+     * Q&A 게시판 목록 페이지
+     */
+    @GetMapping("/qa")
+    public String qa() {
+        return "posts/index";
+    }
+
+    /**
+     * Q&A 게시글 상세 페이지
+     */
+    @GetMapping("/qa/{id}")
+    public String qaDetail(@PathVariable Long id, Model model) {
+        model.addAttribute("postId", id);
+        return "posts/detail";
+    }
+
+    /**
      * 장바구니 페이지
      */
     @GetMapping("/cart")

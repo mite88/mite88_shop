@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+  <title>Q&amp;A 게시판</title>
+</head>
+<body>
+<div layout:fragment="content">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold">Q&amp;A 문의게시판</h1>
+    <button id="write-btn" class="btn btn-primary btn-sm hidden" onclick="openWriteModal()">글쓰기</button>
+  </div>
+
+  <!-- 게시글 목록 -->
+  <div id="post-list" class="space-y-3">
+    <div class="flex justify-center py-12">
+      <span class="loading loading-spinner loading-lg"></span>
+    </div>
+  </div>
+
+  <!-- 페이지네이션 -->
+  <div id="pagination"></div>
+
+  <!-- 글쓰기 모달 -->
+  <dialog id="write-modal" class="modal modal-bottom sm:modal-middle">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg mb-4">문의 작성</h3>
+      <div class="space-y-3">
+        <input id="post-title-input" type="text" placeholder="제목" class="input input-bordered w-full" maxlength="100" />
+        <textarea id="post-content-input" placeholder="내용을 입력해주세요." class="textarea textarea-bordered w-full h-40" maxlength="2000"></textarea>
+      </div>
+      <div class="modal-action">
+        <button class="btn btn-ghost" onclick="closeWriteModal()">취소</button>
+        <button class="btn btn-primary" onclick="submitPost()">등록</button>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop"><button>닫기</button></form>
+  </dialog>
+</div>
+
+<th:block layout:fragment="scripts">
+  <script th:src="@{/js/posts.js}"></script>
+  <script>
+    loadPosts();
+  </script>
+</th:block>
+</body>
+</html>

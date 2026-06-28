@@ -25,6 +25,9 @@
       <span class="loading loading-spinner loading-lg"></span>
     </div>
   </div>
+
+  <!-- 페이지네이션 -->
+  <div id="pagination" class="flex justify-center mt-8"></div>
 </div>
 
 <th:block layout:fragment="scripts">
@@ -33,10 +36,10 @@
     function filterProducts(btn, category) {
       document.querySelectorAll('#category-tabs .tab').forEach(t => t.classList.remove('tab-active'));
       btn.classList.add('tab-active');
-      loadProducts(category);
+      loadProducts(category, 0);
     }
 
-    loadProducts();
+    loadProducts(null, 0);
   </script>
 </th:block>
 </body>

@@ -74,8 +74,8 @@ class AuthServiceTest {
         when(memberService.loadUserByUsername(username)).thenReturn(memberDetails);
         when(passwordEncoder.matches(password, encodedPassword)).thenReturn(true);
         when(jwtTokenProvider.issue(anyLong(), anyMap())).thenReturn(accessToken);
-        when(jwtTokenProvider.issueRefreshToken(anyLong(), anyString())).thenReturn(refreshToken);
-        doNothing().when(refreshTokenService).save(anyString(), anyString());
+        when(jwtTokenProvider.issueRefreshToken(anyLong(), anyString(), anyString())).thenReturn(refreshToken);
+        doNothing().when(refreshTokenService).save(anyString(), anyString(), anyString());
 
         TokenResponse response = authService.login(loginRequest);
 
@@ -86,8 +86,8 @@ class AuthServiceTest {
         verify(memberService, times(1)).loadUserByUsername(username);
         verify(passwordEncoder, times(1)).matches(password, encodedPassword);
         verify(jwtTokenProvider, times(1)).issue(anyLong(), anyMap());
-        verify(jwtTokenProvider, times(1)).issueRefreshToken(anyLong(), anyString());
-        verify(refreshTokenService, times(1)).save(anyString(), anyString());
+        verify(jwtTokenProvider, times(1)).issueRefreshToken(anyLong(), anyString(), anyString());
+        verify(refreshTokenService, times(1)).save(anyString(), anyString(), anyString());
     }
 
     @Test
@@ -128,8 +128,8 @@ class AuthServiceTest {
         when(refreshTokenService.find(username)).thenReturn(Optional.of(oldRefreshToken));
         when(memberService.loadUserByUsername(username)).thenReturn(memberDetails);
         when(jwtTokenProvider.issue(anyLong(), anyMap())).thenReturn(accessToken);
-        when(jwtTokenProvider.issueRefreshToken(anyLong(), anyString())).thenReturn(refreshToken);
-        doNothing().when(refreshTokenService).save(anyString(), anyString());
+        when(jwtTokenProvider.issueRefreshToken(anyLong(), anyString(), anyString())).thenReturn(refreshToken);
+        doNothing().when(refreshTokenService).save(anyString(), anyString(), anyString());
 
         TokenResponse response = authService.refresh(oldRefreshToken);
 
@@ -142,8 +142,8 @@ class AuthServiceTest {
         verify(refreshTokenService, times(1)).find(username);
         verify(memberService, times(1)).loadUserByUsername(username);
         verify(jwtTokenProvider, times(1)).issue(anyLong(), anyMap());
-        verify(jwtTokenProvider, times(1)).issueRefreshToken(anyLong(), anyString());
-        verify(refreshTokenService, times(1)).save(anyString(), anyString());
+        verify(jwtTokenProvider, times(1)).issueRefreshToken(anyLong(), anyString(), anyString());
+        verify(refreshTokenService, times(1)).save(anyString(), anyString(), anyString());
     }
 
     @Test

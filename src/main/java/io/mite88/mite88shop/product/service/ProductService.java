@@ -3,6 +3,7 @@ package io.mite88.mite88shop.product.service;
 import io.mite88.mite88shop.global.code.ResponseCode;
 import io.mite88.mite88shop.global.exception.BusinessException;
 import io.mite88.mite88shop.product.dto.ProductDescription;
+import io.mite88.mite88shop.product.dto.ProductPageResponse;
 import io.mite88.mite88shop.product.dto.ProductSaveRequest;
 import io.mite88.mite88shop.product.dto.ProductUpdateRequest;
 import io.mite88.mite88shop.product.entity.Product;
@@ -10,6 +11,9 @@ import io.mite88.mite88shop.product.mapper.ProductMapper;
 import io.mite88.mite88shop.product.repository.ProductJpaRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -51,6 +55,31 @@ public class ProductService {
      */
     public List<ProductDescription> findByCategory(String category) {
         return productRepository.findByCategory(category).stream().map(ProductMapper::toDescription).toList();
+    }
+
+    /**
+     * 전체 상품 페이징 조회
+     */
+    public ProductPageResponse findAllPaged(int page, int size) {
+        Page<Product> result = productRepository.findAll(PageRequest.of(page, size, Sort.by("id").descending()));
+        return toPageResponse(result);
+    }
+
+    /**
+     * 카테고리별 상품 페이징 조회
+     */
+    public ProductPageResponse findByCategoryPaged(String category, int page, int size) {
+        Page<Product> result = productRepository.findByCategory(category, PageRequest.of(page, size, Sort.by("id").descending()));
+        return toPageResponse(result);
+    }
+
+    private ProductPageResponse toPageResponse(Page<Product> page) {
+        return new ProductPageResponse(
+                page.getContent().stream().map(ProductMapper::toDescription).toList(),
+                page.getTotalPages(),
+                page.getTotalElements(),
+                page.getNumber()
+        );
     }
 
     /**

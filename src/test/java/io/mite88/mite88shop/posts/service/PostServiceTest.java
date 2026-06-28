@@ -7,8 +7,12 @@ import io.mite88.mite88shop.members.dto.Role; // MemberRole 대신 Role import
 import io.mite88.mite88shop.members.service.MemberService;
 import io.mite88.mite88shop.posts.dto.EditPostRequest;
 import io.mite88.mite88shop.posts.dto.PostDescription;
+import io.mite88.mite88shop.posts.dto.PostPageResponse;
 import io.mite88.mite88shop.posts.entity.Posts;
 import io.mite88.mite88shop.posts.repository.PostJpaRepository;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,7 +23,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils; // ReflectionTestUtils import
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -120,7 +123,7 @@ class PostServiceTest {
     }
 
     @Test
-    @DisplayName("모든 게시글 조회 성공")
+    @DisplayName("문의 목록 페이징 조회 성공")
     void findAll_Success() {
         Posts anotherPost = Posts.builder()
                 .title("Another Title")
@@ -129,33 +132,38 @@ class PostServiceTest {
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
-        ReflectionTestUtils.setField(anotherPost, "id", 2L); // Reflection을 사용하여 id 설정
+        ReflectionTestUtils.setField(anotherPost, "id", 2L);
 
-        List<Posts> postsList = Arrays.asList(testPost, anotherPost);
+        List<Posts> postsList = List.of(testPost, anotherPost);
+        PageImpl<Posts> page = new PageImpl<>(postsList, PageRequest.of(0, 10), 2);
 
-        when(postJpaRepository.findAll()).thenReturn(postsList);
+        when(postJpaRepository.findAll(any(Pageable.class))).thenReturn(page);
 
-        List<PostDescription> result = postService.findAll();
+        PostPageResponse result = postService.findAll(0);
 
         assertThat(result).isNotNull();
-        assertThat(result).hasSize(2);
-        assertThat(result.get(0).title()).isEqualTo(testPost.getTitle());
-        assertThat(result.get(1).title()).isEqualTo(anotherPost.getTitle());
+        assertThat(result.content()).hasSize(2);
+        assertThat(result.totalElements()).isEqualTo(2);
+        assertThat(result.totalPages()).isEqualTo(1);
+        assertThat(result.number()).isEqualTo(0);
 
-        verify(postJpaRepository, times(1)).findAll();
+        verify(postJpaRepository, times(1)).findAll(any(Pageable.class));
     }
 
     @Test
-    @DisplayName("모든 게시글 조회 성공 - 게시글 없음")
+    @DisplayName("문의 목록 페이징 조회 - 게시글 없음")
     void findAll_EmptyList() {
-        when(postJpaRepository.findAll()).thenReturn(Collections.emptyList());
+        PageImpl<Posts> emptyPage = new PageImpl<>(Collections.emptyList(), PageRequest.of(0, 10), 0);
 
-        List<PostDescription> result = postService.findAll();
+        when(postJpaRepository.findAll(any(Pageable.class))).thenReturn(emptyPage);
+
+        PostPageResponse result = postService.findAll(0);
 
         assertThat(result).isNotNull();
-        assertThat(result).isEmpty();
+        assertThat(result.content()).isEmpty();
+        assertThat(result.totalElements()).isEqualTo(0);
 
-        verify(postJpaRepository, times(1)).findAll();
+        verify(postJpaRepository, times(1)).findAll(any(Pageable.class));
     }
 
     @Test
