@@ -35,6 +35,15 @@
       <a data-auth="guest" th:href="@{/signup}" class="btn btn-primary btn-sm">회원가입</a>
 
       <!-- 로그인 -->
+      <div data-auth="user" class="hidden flex items-center gap-2 bg-base-200 border border-base-300 rounded-lg px-2.5 py-1 text-xs font-semibold shadow-xs">
+        <span class="flex items-center gap-1 font-mono text-base-content/85">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5 text-primary">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+          </svg>
+          <span id="session-timer">15:00</span>
+        </span>
+        <button onclick="SessionManager.extendSession()" class="btn btn-xs btn-primary rounded-md font-bold px-2">연장</button>
+      </div>
       <a data-auth="user" th:href="@{/cart}" class="btn btn-ghost btn-sm hidden">🛒 장바구니</a>
       <a data-auth="user" th:href="@{/orders}" class="btn btn-ghost btn-sm hidden">주문내역</a>
       <button data-auth="user" onclick="Auth.logout()" class="btn btn-error btn-sm hidden">로그아웃</button>
@@ -50,6 +59,28 @@
   <footer class="footer footer-center bg-base-300 text-base-content p-6 mt-auto">
     <p class="text-sm">© 2026 Mite88 Shop. All rights reserved.</p>
   </footer>
+
+  <!-- 세션 연장 모달 -->
+  <dialog id="session-warning-modal" class="modal modal-bottom sm:modal-middle">
+    <div class="modal-box max-w-sm border border-base-300 shadow-2xl">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-full bg-warning/20 flex items-center justify-center text-warning">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3Z" />
+          </svg>
+        </div>
+        <h3 class="font-bold text-lg text-base-content">로그인 연장 안내</h3>
+      </div>
+      <p class="text-sm text-base-content/70 leading-relaxed">
+        장시간 동안 활동이 없어 <span class="text-error font-extrabold font-mono" id="modal-timer">10:00</span> 후 자동으로 로그아웃됩니다.<br>
+        로그인 상태를 연장하시겠습니까?
+      </p>
+      <div class="modal-action justify-end gap-2 mt-6">
+        <button class="btn btn-outline btn-sm rounded-lg" onclick="SessionManager.logout()">로그아웃</button>
+        <button class="btn btn-primary btn-sm rounded-lg" onclick="SessionManager.extendSession()">로그인 연장</button>
+      </div>
+    </div>
+  </dialog>
 
   <!-- TOAST 컨테이너 -->
   <div id="toast-container" class="toast toast-top toast-end z-[100]"></div>

@@ -21,10 +21,11 @@ public class RefreshTokenService {
     private long refreshExpiration;
 
     /**
-     * 리프레시 토큰 Redis에 저장 - TTL은 토큰 만료 시간과 동일하게 설정
+     * 리프레시 토큰 및 활성 세션 ID Redis에 저장 - TTL은 토큰 만료 시간과 동일하게 설정
      */
-    public void save(String username, String refreshToken) {
+    public void save(String username, String refreshToken, String sessionId) {
         redisTemplate.opsForValue().set(PREFIX + username, refreshToken, Duration.ofMillis(refreshExpiration));
+        redisTemplate.opsForValue().set("session:" + username, sessionId, Duration.ofMillis(refreshExpiration));
     }
 
     /**
@@ -35,10 +36,18 @@ public class RefreshTokenService {
     }
 
     /**
-     * 리프레시 토큰 삭제 - 로그아웃 시 호출
+     * 활성 세션 ID 조회
+     */
+    public Optional<String> getActiveSessionId(String username) {
+        return Optional.ofNullable(redisTemplate.opsForValue().get("session:" + username));
+    }
+
+    /**
+     * 리프레시 토큰 및 활성 세션 ID 삭제 - 로그아웃 시 호출
      */
     public void delete(String username) {
         redisTemplate.delete(PREFIX + username);
+        redisTemplate.delete("session:" + username);
     }
 
 }

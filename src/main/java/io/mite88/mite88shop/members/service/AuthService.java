@@ -81,9 +81,10 @@ public class AuthService {
      * 액세스·리프레시 토큰 발급 및 리프레시 토큰 Redis 저장
      */
     public TokenResponse issueTokens(String username, String role) {
-        String accessToken = jwtTokenProvider.issue(accessExpiration, Map.of("username", username, "role", role));
-        String refreshToken = jwtTokenProvider.issueRefreshToken(refreshExpiration, username);
-        refreshTokenService.save(username, refreshToken);
+        String sessionId = java.util.UUID.randomUUID().toString();
+        String accessToken = jwtTokenProvider.issue(accessExpiration, Map.of("username", username, "role", role, "sid", sessionId));
+        String refreshToken = jwtTokenProvider.issueRefreshToken(refreshExpiration, username, sessionId);
+        refreshTokenService.save(username, refreshToken, sessionId);
         return new TokenResponse(accessToken, refreshToken);
     }
 

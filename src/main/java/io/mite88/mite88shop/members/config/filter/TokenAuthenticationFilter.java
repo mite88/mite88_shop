@@ -3,6 +3,7 @@ package io.mite88.mite88shop.members.config.filter;
 
 import io.mite88.mite88shop.members.service.JwtTokenProvider;
 import io.mite88.mite88shop.members.service.MemberService;
+import io.mite88.mite88shop.members.service.RefreshTokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,6 +25,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final MemberService memberService;
+    private final RefreshTokenService refreshTokenService;
 
     /**
      * 요청마다 Authorization 헤더에서 JWT 추출 후 유효하면 SecurityContext에 인증 정보 설정
@@ -39,6 +41,21 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             Map<String, Object> payload = jwtTokenProvider.getClaims(token);
 
             String username = payload.get("username").toString();
+            Object sidObj = payload.get("sid");
+
+            if (sidObj != null) {
+                String sid = sidObj.toString();
+                String activeSid = refreshTokenService.getActiveSessionId(username).orElse(null);
+                if (activeSid == null || !activeSid.equals(sid)) {
+                    // 다중 로그인 혹은 세션 만료로 인해 비활성화된 세션 ID
+                    filterChain.doFilter(request, response);
+                    return;
+                }
+            } else {
+                // 이전 토큰 혹은 sid가 없는 토큰 -> 차단
+                filterChain.doFilter(request, response);
+                return;
+            }
 
             UserDetails userDetails = memberService.loadUserByUsername(username);
             Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, token, userDetails.getAuthorities());
