@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+  <title>문의 상세</title>
+</head>
+<body>
+<div layout:fragment="content">
+  <!-- 로딩 -->
+  <div id="post-skeleton" class="space-y-4">
+    <div class="skeleton h-8 w-3/4"></div>
+    <div class="skeleton h-4 w-32"></div>
+    <div class="skeleton h-32 w-full"></div>
+  </div>
+
+  <!-- 게시글 상세 -->
+  <div id="post-detail" class="hidden space-y-6">
+    <!-- 게시글 본문 -->
+    <div class="card bg-base-100 shadow">
+      <div class="card-body">
+        <div class="flex justify-between items-start">
+          <div>
+            <h1 id="post-title" class="text-2xl font-bold mb-1"></h1>
+            <div class="text-sm text-base-content/50">
+              <span id="post-author"></span> · <span id="post-date"></span>
+            </div>
+          </div>
+          <div id="post-actions" class="hidden gap-2 flex">
+            <button class="btn btn-ghost btn-sm" onclick="deletePost()">삭제</button>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <p id="post-content" class="whitespace-pre-wrap leading-relaxed"></p>
+      </div>
+    </div>
+
+    <!-- 댓글 섹션 -->
+    <div>
+      <h2 class="text-lg font-semibold mb-3">답변 <span id="comment-count" class="text-base-content/50 text-sm font-normal"></span></h2>
+
+      <!-- 댓글 목록 -->
+      <div id="comment-list" class="space-y-3 mb-4"></div>
+
+      <!-- 댓글 작성 -->
+      <div id="comment-write" class="hidden">
+        <div class="flex gap-2">
+          <textarea id="comment-input" placeholder="답변을 입력하세요." class="textarea textarea-bordered flex-1 h-20" maxlength="1000"></textarea>
+          <button class="btn btn-primary self-end" onclick="submitComment()">등록</button>
+        </div>
+      </div>
+      <div id="comment-login-prompt" class="hidden text-sm text-base-content/50"></div>
+    </div>
+
+    <div>
+      <a th:href="@{/qa}" class="btn btn-ghost btn-sm">← 목록으로</a>
+    </div>
+  </div>
+</div>
+
+<th:block layout:fragment="scripts">
+  <script th:inline="javascript">
+    const POST_ID = /*[[${postId}]]*/ null;
+  </script>
+  <script th:src="@{/js/posts.js}"></script>
+  <script>
+    loadPostDetail(POST_ID);
+  </script>
+</th:block>
+</body>
+</html>

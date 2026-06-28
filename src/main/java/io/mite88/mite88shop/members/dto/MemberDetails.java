@@ -28,7 +28,7 @@ public class MemberDetails implements UserDetails {
      */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        String role = this.role.name().toUpperCase();
+        String role = "ROLE_" + this.role.name().toUpperCase();
         return List.of(new SimpleGrantedAuthority(role));
     }
 

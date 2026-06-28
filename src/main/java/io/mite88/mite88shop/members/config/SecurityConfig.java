@@ -57,9 +57,9 @@ public class SecurityConfig {
                         //인증 없이 사용 가능한 인증 API
                         .requestMatchers("/api/v1/auth/signup", "/api/v1/auth/login", "/api/v1/auth/refresh").permitAll()
                         .requestMatchers("/api/v1/auth/logout").authenticated()
-                        //게시글 조회는 공개, 작성/수정/삭제는 로그인 필요
-                        .requestMatchers(HttpMethod.GET, "/posts/**").permitAll()
-                        .requestMatchers("/posts/**").authenticated()
+                        //문의 게시판: 조회 공개, 작성/수정/삭제/답변 모두 ADMIN 전용
+                        .requestMatchers(HttpMethod.GET, "/qna/**").permitAll()
+                        .requestMatchers("/qna/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/members").permitAll()
                         .requestMatchers("/members/**").authenticated()
                         .requestMatchers("/cart", "/orders").permitAll()

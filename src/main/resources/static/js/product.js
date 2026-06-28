@@ -1,19 +1,28 @@
-async function loadProducts(category = null) {
+let currentCategory = null;
+let currentPage = 0;
+const PAGE_SIZE = 8;
+
+async function loadProducts(category = null, page = 0) {
+  currentCategory = category;
+  currentPage = page;
+
   const grid = document.getElementById('product-grid');
   grid.innerHTML = '<div class="col-span-full flex justify-center py-12"><span class="loading loading-spinner loading-lg"></span></div>';
 
-  const url = category ? `/api/products?category=${encodeURIComponent(category)}` : '/api/products';
+  let url = `/api/products/paged?page=${page}&size=${PAGE_SIZE}`;
+  if (category) url += `&category=${encodeURIComponent(category)}`;
 
   try {
     const res = await fetch(url);
-    const products = await res.json();
+    const data = await res.json();
 
-    if (!products.length) {
+    if (!data.content.length) {
       grid.innerHTML = '<div class="col-span-full text-center py-12 text-base-content/50">상품이 없습니다.</div>';
+      renderPagination(0, 0);
       return;
     }
 
-    grid.innerHTML = products.map(p => {
+    grid.innerHTML = data.content.map(p => {
       const outOfStock = p.stock === 0;
       return `
       <div class="card shadow-md transition-shadow ${outOfStock ? 'bg-base-200 opacity-70' : 'bg-base-100 hover:shadow-xl cursor-pointer'}"
@@ -35,9 +44,31 @@ async function loadProducts(category = null) {
       </div>
     `}).join('');
 
+    renderPagination(data.number, data.totalPages);
+
   } catch {
     showToast('상품 목록을 불러오지 못했습니다.', 'error');
   }
+}
+
+function renderPagination(currentPage, totalPages) {
+  const container = document.getElementById('pagination');
+  if (!container) return;
+  const pages = Math.max(totalPages, 1);
+  const maxVisible = 5;
+  let start = Math.max(0, currentPage - Math.floor(maxVisible / 2));
+  let end = Math.min(pages - 1, start + maxVisible - 1);
+  if (end - start < maxVisible - 1) start = Math.max(0, end - maxVisible + 1);
+
+  let html = '<div class="join">';
+  html += `<button class="join-item btn btn-sm ${currentPage === 0 ? 'btn-disabled' : ''}" onclick="loadProducts(currentCategory, ${currentPage - 1})">«</button>`;
+  for (let i = start; i <= end; i++) {
+    html += `<button class="join-item btn btn-sm ${i === currentPage ? 'btn-active' : ''}" onclick="loadProducts(currentCategory, ${i})">${i + 1}</button>`;
+  }
+  html += `<button class="join-item btn btn-sm ${currentPage >= pages - 1 ? 'btn-disabled' : ''}" onclick="loadProducts(currentCategory, ${currentPage + 1})">»</button>`;
+  html += '</div>';
+
+  container.innerHTML = html;
 }
 
 let currentQty = 1;
