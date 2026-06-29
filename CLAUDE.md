@@ -68,7 +68,7 @@ MySQL/Redis 없이 로컬 개발 시 `h2` 프로파일 활성화, `mysql` 제거
 - `product` — 상품 카탈로그 (쓰기: ADMIN 전용, 읽기: 공개)
 - `cart` — 회원별 장바구니 (첫 접근 시 자동 생성)
 - `order` — 주문 생성 및 취소
-- `posts` — Q&A 문의게시판 (문의 작성·수정·삭제·답변 모두 ADMIN 전용, 조회 공개). API 경로: `/qna`, `/qna/{id}`, `/qna/{id}/comments`. 목록은 10개 페이징(`GET /qna?page=0`). 답변(Comment)에 `isAdminAuthor` 플래그 포함.
+- `posts` — Q&A 문의게시판 (문의 작성: 로그인 회원, 수정·삭제·답변: ADMIN 전용, 조회 공개). API 경로: `/qna`, `/qna/{id}`, `/qna/{id}/comments`. 목록은 10개 페이징(`GET /qna?page=0`). 답변(Comment)에 `isAdminAuthor` 플래그 포함.
 - `members` — 인증, JWT, OAuth2, 회원 CRUD. JWT 클레임 키: `username`, `role`, `sid`. `MemberDetails.getAuthorities()`는 `ROLE_` 접두사 포함(`ROLE_ADMIN`, `ROLE_MEMBER`).
 - `view` — Thymeleaf 서버 렌더링 페이지 (`ViewController`)
 - `global` — 공통 관심사: `CommonResponse`, `ResponseCode`, `BusinessException`, `GlobalExceptionHandler`, AI 작업 큐, Redis 설정
@@ -93,7 +93,8 @@ JWT + 선택적 세션 (`SessionCreationPolicy.IF_REQUIRED`):
 - 공개: `/`, `/login`, `/signup`, Swagger(`/swagger-ui/**`, `/v3/api-docs/**`), OAuth2 리다이렉트, Actuator(`/actuator/**` — Prometheus 스크레이핑 포함)
 - 공개 GET: `GET /qna/**`, `GET /products/**`, `GET /api/products/**`
 - 인증 필요: `/api/cart/**`, `/api/orders/**`, `/api/v1/auth/logout`
-- ADMIN 전용: `POST/PATCH/DELETE /api/products/**`, `POST/PATCH/DELETE /qna/**`(문의 작성·수정·삭제·답변 모두)
+- 인증 필요(MEMBER 이상): `POST /qna`(문의 작성)
+- ADMIN 전용: `POST/PATCH/DELETE /api/products/**`, `PATCH/DELETE /qna/**`, `POST/DELETE /qna/{id}/comments`(수정·삭제·답변)
 - 나머지 요청은 기본 `permitAll()`
 
 ### Redis 빈 구분 (RedisConfig)

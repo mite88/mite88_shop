@@ -57,8 +57,9 @@ public class SecurityConfig {
                         //인증 없이 사용 가능한 인증 API
                         .requestMatchers("/api/v1/auth/signup", "/api/v1/auth/login", "/api/v1/auth/refresh").permitAll()
                         .requestMatchers("/api/v1/auth/logout").authenticated()
-                        //문의 게시판: 조회 공개, 작성/수정/삭제/답변 모두 ADMIN 전용
+                        //문의 게시판: 조회 공개, 문의 작성 로그인 회원, 수정/삭제/답변 ADMIN 전용
                         .requestMatchers(HttpMethod.GET, "/qna/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/qna").authenticated()
                         .requestMatchers("/qna/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/members").permitAll()
                         .requestMatchers("/members/**").authenticated()
