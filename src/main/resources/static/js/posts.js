@@ -29,8 +29,7 @@ async function loadPosts(page = 0) {
 
     renderPagination(data.totalPages, data.number);
 
-    const isAdmin = Auth.isLoggedIn() && parseRole(Auth.getToken()) === 'ADMIN';
-    if (isAdmin) {
+    if (Auth.isLoggedIn()) {
       const btn = document.getElementById('write-btn');
       if (btn) btn.classList.remove('hidden');
     }
